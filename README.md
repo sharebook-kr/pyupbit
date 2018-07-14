@@ -67,10 +67,10 @@ print(upbit.get_balances())
 리플을 500원에 20개 매도한다. 
 ```python
 # 매도
-#print(upbit.sell_limit_order("KRW-XRP", 507, 20))
+print(upbit.sell_limit_order("KRW-XRP", 507, 20))
 
 # 매수
-#print(upbit.buy_limit_order("KRW-XRP", 500, 20))
+print(upbit.buy_limit_order("KRW-XRP", 500, 20))
 ```
 
 #### 매수/매도 주문 취소
