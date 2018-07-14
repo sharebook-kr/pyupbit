@@ -1,2 +1,2 @@
 # pyupbit
-python wrapper for upbit API 
+python3 wrapper for upbit API 
