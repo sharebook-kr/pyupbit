@@ -75,6 +75,7 @@ def get_ohlcv(ticker="KRW-BTC", interval= "day", count=120):
 
         contents = _call_public_api(url, market=ticker, count=count)
         dt_list = [ datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
+        dt_list.reverse()
         df = pd.DataFrame(contents, columns=['opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume'],
                           index=dt_list)
         df = df.rename(columns={"opening_price": "open", "high_price": "high", "low_price": "low", "trade_price": "close",
@@ -120,14 +121,14 @@ def get_orderbook(tickers="KRW-BTC"):
 
 
 if __name__ == "__main__":
-    #print(get_tickers())
-    #print(get_tickers(fiat="KRW"))
+    print(get_tickers())
+    print(get_tickers(fiat="KRW"))
     #print(get_tickers(fiat="BTC"))
     #print(get_tickers(fiat="ETH"))
     #print(get_tickers(fiat="USDT"))
 
     #print(get_ohlcv("KRW-BTC"))
     #print(get_ohlcv("KRW-BTC", interval="minute"))
-    print(get_ohlcv("KRW-BTC", interval="week"))
-    #print(get_current_price("KRW-BTC"))
+    #print(get_ohlcv("KRW-BTC", interval="week"))
+    print(get_current_price("KRW-BTC"))
     #print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
