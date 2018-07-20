@@ -2,7 +2,9 @@
 Python Wrapper for Upbit API
 
 ## Installation
+Use the Anaconda 5.2 (Python 3.6+)
 ```sh
+pip install pyjwt
 pip install pyupbit
 ```
 
@@ -13,13 +15,12 @@ import pyupbit
 
 ## Quotation API
 ####  암호화폐 목록
-업비트가 지원하는 암호화폐 목록을 얻어온다.
+업비트가 지원하는 모든 암호화폐 목록을 얻어온다.
 ```python
 print(pyupbit.get_tickers())
 ```
 
-####  암호화폐 목록 (KRW/BTC/ETH/USDT)
-업비트가 지원하는 암호화폐 목록 중 특정 Fiat로 매매가 가능한 목록만 얻어온다.
+업비트가 지원하는 암호화폐 목록 중 특정 Fiat로 매매가 가능한 목록만 얻어올 수도 있다. 
 ```python
 print(pyupbit.get_tickers(fiat="KRW"))
 print(pyupbit.get_tickers(fiat="BTC"))

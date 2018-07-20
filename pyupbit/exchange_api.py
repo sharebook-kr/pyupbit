@@ -7,17 +7,18 @@ import re
 getframe_expr = 'sys._getframe({}).f_code.co_name'
 
 
-def _send_post_request(url, headers=None, data=None, remaining_req=None):
+def _send_post_request(url, headers=None, data=None):
     try:
         resp = requests_retry_session().post(url, headers=headers, data=data)
-        remaining = resp.headers.get('Remaining-Req')
-        if isinstance(remaining_req, dict) and remaining is not None:
-            group, min, sec = _parse_remaining_req(remaining)
-            remaining_req['group'] = group
-            remaining_req['min'] = min
-            remaining_req['sec'] = sec
+        remaining_req_dict = {}
+        remaining_req = resp.headers.get('Remaining-Req')
+        if remaining_req is not None:
+            group, min, sec = _parse_remaining_req(remaining_req)
+            remaining_req_dict['group'] = group
+            remaining_req_dict['min'] = min
+            remaining_req_dict['sec'] = sec
         contents = resp.json()
-        return contents
+        return contents, remaining_req_dict
     except Exception as x:
         print("send post request failed", x.__class__.__name__)
         print("caller: ", eval(getframe_expr.format(2)))
@@ -31,34 +32,36 @@ def _parse_remaining_req(remaining_req):
     except:
         return None, None, None
 
-def _send_get_request(url, headers=None, remaining_req=None):
+def _send_get_request(url, headers=None):
     try:
         resp = requests_retry_session().get(url, headers=headers)
-        remaining = resp.headers.get('Remaining-Req')
-        if isinstance(remaining_req, dict) and remaining is not None:
-            group, min, sec = _parse_remaining_req(remaining)
-            remaining_req['group'] = group
-            remaining_req['min'] = min
-            remaining_req['sec'] = sec
+        remaining_req_dict = {}
+        remaining_req = resp.headers.get('Remaining-Req')
+        if remaining_req is not None:
+            group, min, sec = _parse_remaining_req(remaining_req)
+            remaining_req_dict['group'] = group
+            remaining_req_dict['min'] = min
+            remaining_req_dict['sec'] = sec
         contents = resp.json()
-        return contents
+        return contents, remaining_req_dict
     except Exception as x:
         print("send get request failed", x.__class__.__name__)
         print("caller: ", eval(getframe_expr.format(2)))
         return None
 
 
-def _send_delete_request(url, headers=None, data=None, remaining_req=None):
+def _send_delete_request(url, headers=None, data=None):
     try:
         resp = requests_retry_session().delete(url, headers=headers, data=data)
-        remaining = resp.headers.get('Remaining-Req')
-        if isinstance(remaining_req, dict) and remaining is not None:
-            group, min, sec = _parse_remaining_req(remaining)
-            remaining_req['group'] = group
-            remaining_req['min'] = min
-            remaining_req['sec'] = sec
+        remaining_req_dict = {}
+        remaining_req = resp.headers.get('Remaining-Req')
+        if remaining_req is not None:
+            group, min, sec = _parse_remaining_req(remaining_req)
+            remaining_req_dict['group'] = group
+            remaining_req_dict['min'] = min
+            remaining_req_dict['sec'] = sec
         contents = resp.json()
-        return contents
+        return contents, remaining_req_dict
     except Exception as x:
         print("send post request failed", x.__class__.__name__)
         print("caller: ", eval(getframe_expr.format(2)))
@@ -104,16 +107,16 @@ class Upbit:
         headers = {"Authorization": authorization_token}
         return headers
 
-    def get_balances(self, remaining_req=None):
+    def get_balances(self):
         '''
         전체 계좌 조회
         :return:
         '''
         url = "https://api.upbit.com/v1/accounts"
         headers = self._request_headers()
-        return _send_get_request(url, headers=headers, remaining_req=remaining_req)
+        return _send_get_request(url, headers=headers)
 
-    def buy_limit_order(self, ticker, price, volume, remaining_req=None):
+    def buy_limit_order(self, ticker, price, volume):
         '''
         지정가 매수
         :param ticker: 마켓 티커
@@ -129,12 +132,12 @@ class Upbit:
                     "price": str(price),
                     "ord_type": "limit"}
             headers = self._request_headers(data)
-            return _send_post_request(url, headers=headers, data=data, remaining_req=remaining_req)
+            return _send_post_request(url, headers=headers, data=data)
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
-    def sell_limit_order(self, ticker, price, volume, remaining_req=None):
+    def sell_limit_order(self, ticker, price, volume):
         '''
         지정가 매도
         :param ticker: 마켓 티커
@@ -150,12 +153,12 @@ class Upbit:
                     "price": str(price),
                     "ord_type": "limit"}
             headers = self._request_headers(data)
-            return _send_post_request(url, headers=headers, data=data, remaining_req=remaining_req)
+            return _send_post_request(url, headers=headers, data=data)
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
-    def cancel_order(self, uuid, remaining_req=None):
+    def cancel_order(self, uuid):
         '''
         주문 취소
         :param uuid: 주문 함수의 리턴 값중 uuid
@@ -165,7 +168,7 @@ class Upbit:
             url = "https://api.upbit.com/v1/order"
             data = {"uuid": uuid}
             headers = self._request_headers(data)
-            return _send_delete_request(url, headers=headers, data=data, remaining_req=remaining_req)
+            return _send_delete_request(url, headers=headers, data=data)
         except Exception as x:
             print(x.__class__.__name__)
             return None
@@ -183,34 +186,15 @@ if __name__ == "__main__":
     # 잔고 조회
     print(upbit.get_balances())
 
-    # 잔고 조회 w/ 요청 수 제한 얻기
-    remaining_req = {}
-    print(upbit.get_balances(remaining_req))
-    print(remaining_req)
-
     # 매도
     #print(upbit.sell_limit_order("KRW-XRP", 1000, 20))
 
-    # 매도 w/ 요청 수 제한 얻기
-    #remaining_req = {}
-    #print(upbit.sell_limit_order("KRW-XRP", 1000, 20, remaining_req))
-    #print(remaining_req)
-
     # 매수
-    #print(upbit.buy_limit_order("KRW-XRP", 500, 20))
-
-    # 매수 w/ 요청 수 제한 얻기
-    #remaining_req = {}
-    #print(upbit.buy_limit_order("KRW-XRP", 200, 20, remaining_req))
-    #print(remaining_req)
+    #print(upbit.buy_limit_order("KRW-XRP", 200, 20))
 
     # 주문 취소
-    #print(upbit.cancel_order('e57a3bc0-0b0b-4540-96f2-f35f19c51e8d'))
+    print(upbit.cancel_order('32675c64-78e7-49cd-a352-fd9500dda1ea'))
 
-    # 주문 취소 w/ 요청 수 제한 얻기
-    # remaining_req = {}
-    # print(upbit.cancel_order('7afbd861-bb9d-423f-870a-a87b414ffc5b', remaining_req))
-    # print(remaining_req)
 
 
 
