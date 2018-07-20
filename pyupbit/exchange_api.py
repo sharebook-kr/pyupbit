@@ -184,7 +184,7 @@ if __name__ == "__main__":
     upbit = Upbit(access, secret)
 
     # 잔고 조회
-    print(upbit.get_balances())
+    #print(upbit.get_balances())
 
     # 매도
     #print(upbit.sell_limit_order("KRW-XRP", 1000, 20))
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     #print(upbit.buy_limit_order("KRW-XRP", 200, 20))
 
     # 주문 취소
-    print(upbit.cancel_order('32675c64-78e7-49cd-a352-fd9500dda1ea'))
+    print(upbit.cancel_order('82e211da-21f6-4355-9d76-83e7248e2c0c'))
 
 
 

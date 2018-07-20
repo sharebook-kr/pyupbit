@@ -121,14 +121,16 @@ def get_orderbook(tickers="KRW-BTC"):
 
 
 if __name__ == "__main__":
-    print(get_tickers())
-    print(get_tickers(fiat="KRW"))
-    #print(get_tickers(fiat="BTC"))
-    #print(get_tickers(fiat="ETH"))
-    #print(get_tickers(fiat="USDT"))
+    #print(get_tickers())
+    #print(get_tickers(fiat="KRW"))
+    # print(get_tickers(fiat="BTC"))
+    # print(get_tickers(fiat="ETH"))
+    # print(get_tickers(fiat="USDT"))
 
     #print(get_ohlcv("KRW-BTC"))
+    #print(get_ohlcv("KRW-BTC", interval="day", count=5))
     #print(get_ohlcv("KRW-BTC", interval="minute"))
     #print(get_ohlcv("KRW-BTC", interval="week"))
-    print(get_current_price("KRW-BTC"))
+    #print(get_current_price("KRW-BTC"))
+    print(get_orderbook(tickers=["KRW-BTC"]))
     #print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
