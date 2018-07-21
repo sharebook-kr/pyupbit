@@ -51,6 +51,18 @@ print(get_current_price("KRW-BTC"))
 8392000.0
 ```
 
+리스트를 통해 여러 종목에 대해 한 번에 조회할 수 있다. 
+```python
+print(get_current_price(["KRW-BTC", "KRW-XRP"]))
+```
+
+여러 종목에 대해 동시 조회한 경우 딕셔너리 객체로 리턴한다. 
+
+```
+{'KRW-BTC': 8300000.0, 'KRW-XRP': 511.0}
+```
+
+
 #### 차트 데이터
 ```python
 print(get_ohlcv("KRW-BTC", interval="day", count=5))    # 일봉 데이터 (5일)
