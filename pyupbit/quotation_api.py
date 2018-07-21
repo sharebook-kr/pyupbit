@@ -92,11 +92,20 @@ def get_current_price(ticker="KRW-BTC"):
     :return:
     '''
     try:
-        url = "https://api.upbit.com/v1/trades/ticks"
-        contents = _call_public_api(url, market=ticker)
+        url = "https://api.upbit.com/v1/ticker"
+        contents = _call_public_api(url, markets=ticker)
 
         if contents is not None:
-            return contents[0]['trade_price']
+            # 여러 마케을 동시에 조회
+            if isinstance(ticker, list):
+                ret = {}
+                for content in contents:
+                    market = content['market']
+                    price = content['trade_price']
+                    ret[market] = price
+                return ret
+            else:
+                return contents[0]['trade_price']
         else:
             return None
     except Exception as x:
@@ -127,9 +136,12 @@ if __name__ == "__main__":
     # print(get_tickers(fiat="USDT"))
 
     #print(get_ohlcv("KRW-BTC"))
-    print(get_ohlcv("KRW-BTC", interval="day", count=5))
+    #print(get_ohlcv("KRW-BTC", interval="day", count=5))
     #print(get_ohlcv("KRW-BTC", interval="minute"))
     #print(get_ohlcv("KRW-BTC", interval="week"))
-    #print(get_current_price("KRW-BTC"))
+
+    print(get_current_price("KRW-BTC"))
+    print(get_current_price(["KRW-BTC", "KRW-XRP"]))
+
     #print(get_orderbook(tickers=["KRW-BTC"]))
     #print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
