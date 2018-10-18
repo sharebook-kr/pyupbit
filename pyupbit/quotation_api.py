@@ -66,8 +66,22 @@ def get_ohlcv(ticker="KRW-BTC", interval= "day", count=120):
     try:
         if interval is "day":
             url = "https://api.upbit.com/v1/candles/days"
-        elif interval is "minute":
+        elif interval is "minute1":
             url = "https://api.upbit.com/v1/candles/minutes/1"
+        elif interval is "minute3":
+            url = "https://api.upbit.com/v1/candles/minutes/3"
+        elif interval is "minute5":
+            url = "https://api.upbit.com/v1/candles/minutes/5"
+        elif interval is "minute10":
+            url = "https://api.upbit.com/v1/candles/minutes/10"
+        elif interval is "minute15":
+            url = "https://api.upbit.com/v1/candles/minutes/15"
+        elif interval is "minute30":
+            url = "https://api.upbit.com/v1/candles/minutes/30"
+        elif interval is "minute60":
+            url = "https://api.upbit.com/v1/candles/minutes/60"
+        elif interval is "minute240":
+            url = "https://api.upbit.com/v1/candles/minutes/240"
         elif interval is "week":
             url = "https://api.upbit.com/v1/candles/weeks"
         else:
@@ -137,11 +151,18 @@ if __name__ == "__main__":
 
     #print(get_ohlcv("KRW-BTC"))
     #print(get_ohlcv("KRW-BTC", interval="day", count=5))
-    #print(get_ohlcv("KRW-BTC", interval="minute"))
+    #print(get_ohlcv("KRW-BTC", interval="minute1"))
+    #print(get_ohlcv("KRW-BTC", interval="minute3"))
+    #print(get_ohlcv("KRW-BTC", interval="minute5"))
+    #print(get_ohlcv("KRW-BTC", interval="minute10"))
+    #print(get_ohlcv("KRW-BTC", interval="minute15"))
+    #print(get_ohlcv("KRW-BTC", interval="minute30"))
+    #print(get_ohlcv("KRW-BTC", interval="minute60"))
+    print(get_ohlcv("KRW-BTC", interval="minute240"))
     #print(get_ohlcv("KRW-BTC", interval="week"))
 
-    print(get_current_price("KRW-BTC"))
-    print(get_current_price(["KRW-BTC", "KRW-XRP"]))
+    #print(get_current_price("KRW-BTC"))
+    #print(get_current_price(["KRW-BTC", "KRW-XRP"]))
 
     #print(get_orderbook(tickers=["KRW-BTC"]))
     #print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
