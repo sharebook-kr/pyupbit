@@ -5,7 +5,6 @@ Python Wrapper for Upbit API
 파이썬 개발 환경으로 Anaconda 5.2 (Python 3.6+)를 설치하세요. 
 
 ```sh
-pip install pyjwt
 pip install pyupbit
 ```
 
