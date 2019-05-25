@@ -1,5 +1,5 @@
-*.txt
 .idea
+pyupbit/*.txt
 dist
 *.pyc
 pyupbit.egg-info
