@@ -110,7 +110,15 @@ print(upbit.get_balances())
 ([{'currency': 'KRW', 'balance': '10134.93', 'locked': '0.0', 'avg_krw_buy_price': '0', 'modified': False}, {'currency': 'XRP', 'balance': '20.0', 'locked': '0.0', 'avg_krw_buy_price': '508.66', 'modified': False}], {'group': 'default', 'min': 1799, 'sec': 29})
 ```
 
-#### 매수/매도 주문
+#### 원화/코인 잔고 조회
+특정 코인이나 원화의 잔고만 조회한다. 
+```python
+print(upbit.get_balance(ticker="KRW"))
+print(upbit.get_balance(ticker="KRW-BTC"))
+print(upbit.get_balance(ticker="KRW-XRP"))
+```
+
+#### 지정가 매수/매도 주문
 리플을 507원에 20개 매수한다. 
 리플을 500원에 20개 매도한다. 
 
@@ -135,7 +143,17 @@ print(upbit.buy_limit_order("KRW-XRP", 500, 20))
 ({'uuid': '82e211da-21f6-4355-9d76-83e7248e2c0c', 'side': 'bid', 'ord_type': 'limit', 'price': '200.0', 'avg_price': '0.0', 'state': 'wait', 'market': 'KRW-XRP', 'created_at': '2018-07-21T05:39:40+09:00', 'volume': '20.0', 'remaining_volume': '20.0', 'reserved_fee': '2.0', 'remaining_fee': '2.0', 'paid_fee': '0.0', 'locked': '4002.0', 'executed_volume': '0.0', 'trades_count': 0}, {'group': 'order', 'min': 78, 'sec': 6})
 ```
 
+#### 시장가 매수/매도 주문 
+업비트 API는 공식으로 시장가 주문 API를 제공하지 않습니다. pyupbit에서는 호가를 조회한 후 시장가처럼 주문이 되는 API를 제공합니다. 
 
+```python
+# 시장가 매수
+print(upbit.buy_market_order("KRW-XRP", 10000))     # 10,000원 어치 리플 시장가 매수 
+
+# 시장가 매도
+print(upbit.sell_market_order("KRW-XRP", 30))       # 리플 30개 시장가 매도  
+```
+ 
 #### 매수/매도 주문 취소
 주문 함수의 리턴 값 중 uuid 값을 사용해서 주문을 취소할 수 있다. 
 

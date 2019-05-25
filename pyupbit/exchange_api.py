@@ -24,6 +24,7 @@ def _send_post_request(url, headers=None, data=None):
         print("caller: ", eval(getframe_expr.format(2)))
         return None
 
+
 def _parse_remaining_req(remaining_req):
     try:
         p = re.compile("group=([a-z]+); min=([0-9]+); sec=([0-9]+)")
@@ -31,6 +32,7 @@ def _parse_remaining_req(remaining_req):
         return m.group(1), int(m.group(2)), int(m.group(3))
     except:
         return None, None, None
+
 
 def _send_get_request(url, headers=None):
     try:
@@ -107,6 +109,31 @@ class Upbit:
         headers = {"Authorization": authorization_token}
         return headers
 
+    def get_balance(self, ticker="KRW"):
+        """
+        특정 코인/원화의 잔고 조회
+        :param ticker:
+        :return:
+        """
+        try:
+            # KRW-BTC
+            if '-' in ticker:
+                ticker = ticker.split('-')[1]
+
+            balances = self.get_balances()[0]
+            balance = None
+
+            for x in balances:
+                if x['currency'] == ticker:
+                    balance = float(x['balance'])
+                    break
+            return balance
+
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+
     def get_balances(self):
         '''
         전체 계좌 조회
@@ -136,6 +163,66 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
+
+    def buy_market_order(self, ticker, price, margin=0.01):
+        """
+        시장가 매수 (호가 조회 후 최우선 매도호가로 주문)
+        :param ticker:  티커
+        :param price:  매수금액
+        :param margin:  매수 수량 계산에 사용되는 margin
+        :return:
+        """
+        try:
+            orderbooks = get_orderbook(ticker)
+            orderbooks = orderbooks[0]['orderbook_units']
+
+            for orderbook in orderbooks:
+                ask_price = orderbook['ask_price']
+                ask_size = orderbook['ask_size']
+
+                bid_price = ask_price                                   # 매수가
+                available_bid_size = (price / ask_price) * (1-margin)   # 매수 가능 수량 (마진 고려)
+                bid_size = min(available_bid_size, ask_size)            # 현재 호가에 대한 매수 수량
+                self.buy_limit_order(ticker, bid_price, bid_size)
+
+                # 현재 호가에 수량이 부족한 경우
+                if available_bid_size > ask_size:
+                    price -= (bid_price * bid_size)
+                else:
+                    break
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+    def sell_market_order(self, ticker, size):
+        """
+        시장가 매도 (호가 조회 후 최우선 매수 호가로 주문)
+        :param ticker:  티커
+        :param size:  수량
+        :return:
+        """
+        try:
+            orderbooks = get_orderbook(ticker)
+            orderbooks = orderbooks[0]['orderbook_units']
+
+            for orderbook in orderbooks:
+                # 매수호가
+                bid_price = orderbook['bid_price']
+                bid_size = orderbook['bid_size']
+
+                ask_price = bid_price                                   # 매도가 = 최우선 매수가
+                ask_size = min(size, bid_size)                          # 현재 호가에 대한 매수 수량
+                self.sell_limit_order(ticker, ask_price, ask_size)
+
+                # 현재 호가에 수량이 부족한 경우
+                if bid_size < size:
+                    size -= bid_size
+                else:
+                    break
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
 
     def sell_limit_order(self, ticker, price, volume):
         '''
@@ -183,8 +270,13 @@ if __name__ == "__main__":
     # Upbit
     upbit = Upbit(access, secret)
 
-    # 잔고 조회
+    # 모든 잔고 조회
     #print(upbit.get_balances())
+
+    # 원화 잔고 조회
+    print(upbit.get_balance(ticker="KRW"))
+    print(upbit.get_balance(ticker="KRW-BTC"))
+    print(upbit.get_balance(ticker="KRW-XRP"))
 
     # 매도
     #print(upbit.sell_limit_order("KRW-XRP", 1000, 20))
@@ -193,7 +285,7 @@ if __name__ == "__main__":
     #print(upbit.buy_limit_order("KRW-XRP", 200, 20))
 
     # 주문 취소
-    print(upbit.cancel_order('82e211da-21f6-4355-9d76-83e7248e2c0c'))
+    #print(upbit.cancel_order('82e211da-21f6-4355-9d76-83e7248e2c0c'))
 
 
 
