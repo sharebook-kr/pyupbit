@@ -1,0 +1,5 @@
+*.txt
+.idea
+dist
+*.pyc
+pyupbit.egg-info
