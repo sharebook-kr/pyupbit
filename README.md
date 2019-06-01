@@ -2,7 +2,7 @@
 Python Wrapper for Upbit API
 
 ## Installation
-파이썬 개발 환경으로 Anaconda 5.2 (Python 3.6+)를 설치하세요. 
+파이썬 개발 환경으로 최신 버전의 Anaconda를 설치하세요. (Python3 버전용) 
 
 ```sh
 pip install pyupbit
