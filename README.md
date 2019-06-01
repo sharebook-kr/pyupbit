@@ -42,7 +42,7 @@ fiat="KRW"의 리턴값은 다음과 같다.
 #### 최근 체결가격
 특정 암호화폐에 대한 현재가를 얻어온다. 
 ```python
-print(get_current_price("KRW-BTC"))
+print(pyupbit.get_current_price("KRW-BTC"))
 ```
 
 리턴값은 다음과 같다. 
@@ -52,7 +52,7 @@ print(get_current_price("KRW-BTC"))
 
 리스트를 통해 여러 종목에 대해 한 번에 조회할 수 있다. 
 ```python
-print(get_current_price(["KRW-BTC", "KRW-XRP"]))
+print(pyupbit.get_current_price(["KRW-BTC", "KRW-XRP"]))
 ```
 
 여러 종목에 대해 동시 조회한 경우 딕셔너리 객체로 리턴한다. 
@@ -64,9 +64,9 @@ print(get_current_price(["KRW-BTC", "KRW-XRP"]))
 
 #### 차트 데이터
 ```python
-print(get_ohlcv("KRW-BTC", interval="day", count=5))    # 일봉 데이터 (5일)
-print(get_ohlcv("KRW-BTC", interval="minute"))          # 분봉 데이터
-print(get_ohlcv("KRW-BTC", interval="week"))            # 주봉 데이터 
+print(pyupbit.get_ohlcv("KRW-BTC", interval="day", count=5))    # 일봉 데이터 (5일)
+print(pyupbit.get_ohlcv("KRW-BTC", interval="minute1"))         # 분봉 데이터
+print(pyupbit.get_ohlcv("KRW-BTC", interval="week"))            # 주봉 데이터 
 ```
 
 리턴값은 Pandas DataFrame 객체이다. 
@@ -81,8 +81,8 @@ print(get_ohlcv("KRW-BTC", interval="week"))            # 주봉 데이터
 
 #### 매수/매도 호가
 ```python
-print(get_orderbook(tickers="KRW-BTC")
-print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
+print(pyupbit.get_orderbook(tickers="KRW-BTC")
+print(pyupbit.get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
 ```  
 
 리턴값은 다음과 같다. 
