@@ -80,6 +80,7 @@ print(pyupbit.get_ohlcv("KRW-BTC", interval="week"))            # 주봉 데이�
 ```
 
 기준 시간 단위로 shift된 일봉을 계산할 수도 있다.
+
 예) 2019-06-01 12:00:00 ~ 2019-06-02 11:59:59
 ```python
 print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", base=12))
