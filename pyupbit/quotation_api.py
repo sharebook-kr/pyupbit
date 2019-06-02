@@ -58,7 +58,7 @@ def get_tickers(fiat="ALL"):
         return None
 
 
-def get_ohlcv(ticker="KRW-BTC", interval= "day", count=120):
+def get_ohlcv(ticker="KRW-BTC", interval= "day", count=200):
     """
     일 캔들 조회
     :return:
@@ -84,8 +84,10 @@ def get_ohlcv(ticker="KRW-BTC", interval= "day", count=120):
             url = "https://api.upbit.com/v1/candles/minutes/240"
         elif interval is "week":
             url = "https://api.upbit.com/v1/candles/weeks"
-        else:
+        elif interval is "month":
             url = "https://api.upbit.com/v1/candles/months"
+        else:
+            url = "https://api.upbit.com/v1/candles/days"
 
         contents = _call_public_api(url, market=ticker, count=count)
         dt_list = [ datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
@@ -94,6 +96,16 @@ def get_ohlcv(ticker="KRW-BTC", interval= "day", count=120):
         df = df.rename(columns={"opening_price": "open", "high_price": "high", "low_price": "low", "trade_price": "close",
                                 "candle_acc_trade_volume": "volume"})
         return df.iloc[::-1]
+    except Exception as x:
+        print(x.__class__.__name__)
+        return None
+
+
+def get_daily_ohlcv_from_base(ticker="KRW-BTC", base=0):
+    try:
+        df = get_ohlcv(ticker, interval="minute60")
+        df = df.resample('24H', base=base).agg({'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume':'sum'})
+        return df
     except Exception as x:
         print(x.__class__.__name__)
         return None
@@ -158,8 +170,10 @@ if __name__ == "__main__":
     #print(get_ohlcv("KRW-BTC", interval="minute15"))
     #print(get_ohlcv("KRW-BTC", interval="minute30"))
     #print(get_ohlcv("KRW-BTC", interval="minute60"))
-    print(get_ohlcv("KRW-BTC", interval="minute240"))
+    #print(get_ohlcv("KRW-BTC", interval="minute240"))
     #print(get_ohlcv("KRW-BTC", interval="week"))
+    print(get_daily_ohlcv_from_base("KRW-BTC", base=9))
+    #print(get_ohlcv("KRW-BTC", interval="day", count=5))
 
     #print(get_current_price("KRW-BTC"))
     #print(get_current_price(["KRW-BTC", "KRW-XRP"]))
