@@ -175,6 +175,7 @@ class Upbit:
         try:
             orderbooks = get_orderbook(ticker)
             orderbooks = orderbooks[0]['orderbook_units']
+            total_ask_size = 0
 
             for orderbook in orderbooks:
                 ask_price = orderbook['ask_price']
@@ -184,12 +185,15 @@ class Upbit:
                 available_bid_size = (price / ask_price) * (1-margin)   # 매수 가능 수량 (마진 고려)
                 bid_size = min(available_bid_size, ask_size)            # 현재 호가에 대한 매수 수량
                 self.buy_limit_order(ticker, bid_price, bid_size)
+                total_ask_size += bid_size
 
                 # 현재 호가에 수량이 부족한 경우
                 if available_bid_size > ask_size:
                     price -= (bid_price * bid_size)
                 else:
                     break
+
+            return total_ask_size
         except Exception as x:
             print(x.__class__.__name__)
             return None
