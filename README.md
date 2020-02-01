@@ -156,7 +156,6 @@ print(upbit.buy_limit_order("KRW-XRP", 500, 20))
 ```
 
 #### 시장가 매수/매도 주문 
-업비트 API는 공식으로 시장가 주문 API를 제공하지 않습니다. pyupbit에서는 호가를 조회한 후 시장가처럼 주문이 되는 API를 제공합니다. 
 
 ```python
 # 시장가 매수
