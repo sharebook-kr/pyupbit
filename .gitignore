@@ -3,3 +3,4 @@ pyupbit/*.txt
 dist
 *.pyc
 pyupbit.egg-info
+venv/*

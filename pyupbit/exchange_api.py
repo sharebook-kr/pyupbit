@@ -164,69 +164,43 @@ class Upbit:
             print(x.__class__.__name__)
             return None
 
-    def buy_market_order(self, ticker, price, margin=0.01):
+    def buy_market_order(self, ticker, price):
         """
-        시장가 매수 (호가 조회 후 최우선 매도호가로 주문)
-        :param ticker:  티커
-        :param price:  매수금액
-        :param margin:  매수 수량 계산에 사용되는 margin
+        시장가 매수
+        :param ticker: ticker for cryptocurrency
+        :param price: KRW
         :return:
         """
         try:
-            orderbooks = get_orderbook(ticker)
-            orderbooks = orderbooks[0]['orderbook_units']
-            total_ask_size = 0
-
-            for orderbook in orderbooks:
-                ask_price = orderbook['ask_price']
-                ask_size = orderbook['ask_size']
-
-                bid_price = ask_price                                   # 매수가
-                available_bid_size = (price / ask_price) * (1-margin)   # 매수 가능 수량 (마진 고려)
-                bid_size = min(available_bid_size, ask_size)            # 현재 호가에 대한 매수 수량
-                self.buy_limit_order(ticker, bid_price, bid_size)
-                total_ask_size += bid_size
-
-                # 현재 호가에 수량이 부족한 경우
-                if available_bid_size > ask_size:
-                    price -= (bid_price * bid_size)
-                else:
-                    break
-
-            return total_ask_size
+            url = "https://api.upbit.com/v1/orders"
+            data = {"market": ticker,               # market ID
+                    "side": "bid",                  # buy
+                    "price": str(price),
+                    "ord_type": "price"}
+            headers = self._request_headers(data)
+            return _send_post_request(url, headers=headers, data=data)
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
-    def sell_market_order(self, ticker, size):
+    def sell_market_order(self, ticker, volume):
         """
-        시장가 매도 (호가 조회 후 최우선 매수 호가로 주문)
-        :param ticker:  티커
-        :param size:  수량
+        시장가 매도 메서드
+        :param ticker: 가상화폐 티커
+        :param volume: 수량
         :return:
         """
         try:
-            orderbooks = get_orderbook(ticker)
-            orderbooks = orderbooks[0]['orderbook_units']
-
-            for orderbook in orderbooks:
-                # 매수호가
-                bid_price = orderbook['bid_price']
-                bid_size = orderbook['bid_size']
-
-                ask_price = bid_price                                   # 매도가 = 최우선 매수가
-                ask_size = min(size, bid_size)                          # 현재 호가에 대한 매수 수량
-                self.sell_limit_order(ticker, ask_price, ask_size)
-
-                # 현재 호가에 수량이 부족한 경우
-                if bid_size < size:
-                    size -= bid_size
-                else:
-                    break
+            url = "https://api.upbit.com/v1/orders"
+            data = {"market": ticker,               # ticker
+                    "side": "ask",                  # sell
+                    "volume": str(volume),
+                    "ord_type": "market"}
+            headers = self._request_headers(data)
+            return _send_post_request(url, headers=headers, data=data)
         except Exception as x:
             print(x.__class__.__name__)
             return None
-
 
     def sell_limit_order(self, ticker, price, volume):
         '''
@@ -275,11 +249,11 @@ if __name__ == "__main__":
     upbit = Upbit(access, secret)
 
     # 모든 잔고 조회
-    #print(upbit.get_balances())
+    print(upbit.get_balances())
 
     # 원화 잔고 조회
     print(upbit.get_balance(ticker="KRW"))
-    print(upbit.get_balance(ticker="KRW-BTC"))
+    #print(upbit.get_balance(ticker="KRW-BTC"))
     print(upbit.get_balance(ticker="KRW-XRP"))
 
     # 매도
@@ -291,8 +265,11 @@ if __name__ == "__main__":
     # 주문 취소
     #print(upbit.cancel_order('82e211da-21f6-4355-9d76-83e7248e2c0c'))
 
+    # 시장가 주문 테스트
+    #upbit.buy_market_order("KRW-XRP", 10000)
 
-
+    # 시장가 매도 테스트
+    #upbit.sell_market_order("KRW-XRP", 36)
 
 
 
