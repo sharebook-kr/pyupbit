@@ -1,73 +1,8 @@
-import time
-from pyupbit.quotation_api import *
 import jwt
+import time
 from urllib.parse import urlencode
-import re
 
-getframe_expr = 'sys._getframe({}).f_code.co_name'
-
-
-def _send_post_request(url, headers=None, data=None):
-    try:
-        resp = requests_retry_session().post(url, headers=headers, data=data)
-        remaining_req_dict = {}
-        remaining_req = resp.headers.get('Remaining-Req')
-        if remaining_req is not None:
-            group, min, sec = _parse_remaining_req(remaining_req)
-            remaining_req_dict['group'] = group
-            remaining_req_dict['min'] = min
-            remaining_req_dict['sec'] = sec
-        contents = resp.json()
-        return contents, remaining_req_dict
-    except Exception as x:
-        print("send post request failed", x.__class__.__name__)
-        print("caller: ", eval(getframe_expr.format(2)))
-        return None
-
-
-def _parse_remaining_req(remaining_req):
-    try:
-        p = re.compile("group=([a-z]+); min=([0-9]+); sec=([0-9]+)")
-        m = p.search(remaining_req)
-        return m.group(1), int(m.group(2)), int(m.group(3))
-    except:
-        return None, None, None
-
-
-def _send_get_request(url, headers=None):
-    try:
-        resp = requests_retry_session().get(url, headers=headers)
-        remaining_req_dict = {}
-        remaining_req = resp.headers.get('Remaining-Req')
-        if remaining_req is not None:
-            group, min, sec = _parse_remaining_req(remaining_req)
-            remaining_req_dict['group'] = group
-            remaining_req_dict['min'] = min
-            remaining_req_dict['sec'] = sec
-        contents = resp.json()
-        return contents, remaining_req_dict
-    except Exception as x:
-        print("send get request failed", x.__class__.__name__)
-        print("caller: ", eval(getframe_expr.format(2)))
-        return None
-
-
-def _send_delete_request(url, headers=None, data=None):
-    try:
-        resp = requests_retry_session().delete(url, headers=headers, data=data)
-        remaining_req_dict = {}
-        remaining_req = resp.headers.get('Remaining-Req')
-        if remaining_req is not None:
-            group, min, sec = _parse_remaining_req(remaining_req)
-            remaining_req_dict['group'] = group
-            remaining_req_dict['min'] = min
-            remaining_req_dict['sec'] = sec
-        contents = resp.json()
-        return contents, remaining_req_dict
-    except Exception as x:
-        print("send post request failed", x.__class__.__name__)
-        print("caller: ", eval(getframe_expr.format(2)))
-        return None
+from pyupbit.request_api import _send_get_request, _send_post_request, _send_delete_request
 
 
 def get_tick_size(price):
@@ -109,48 +44,189 @@ class Upbit:
         headers = {"Authorization": authorization_token}
         return headers
 
-    def get_balance(self, ticker="KRW"):
+    # region balance
+    def get_balances(self, contain_req=False):
+        """
+        전체 계좌 조회
+        :param contain_req: Remaining-Req 포함여부
+        :return: 내가 보유한 자산 리스트
+        [contain_req == True 일 경우 Remaining-Req가 포함]
+        """
+        try:
+            url = "https://api.upbit.com/v1/accounts"
+            headers = self._request_headers()
+            result = _send_get_request(url, headers=headers)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+    def get_balance(self, ticker="KRW", contain_req=False):
         """
         특정 코인/원화의 잔고 조회
-        :param ticker:
-        :return:
+        :param ticker: 화폐를 의미하는 영문 대문자 코드
+        :param contain_req: Remaining-Req 포함여부
+        :return: 주문가능 금액/수량 (주문 중 묶여있는 금액/수량 제외)
+        [contain_req == True 일 경우 Remaining-Req가 포함]
         """
         try:
             # KRW-BTC
             if '-' in ticker:
                 ticker = ticker.split('-')[1]
 
-            balances = self.get_balances()[0]
-            balance = None
+            result = self.get_balances(contain_req=True)
+            balances = result[0]
+            req = result[1]
 
             for x in balances:
                 if x['currency'] == ticker:
                     balance = float(x['balance'])
                     break
-            return balance
-
+            if contain_req:
+                return balance, req
+            else:
+                return balance
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
+    def get_balance_t(self, ticker='KRW', contain_req=False):
+        """
+        특정 코인/원화의 잔고 조회(balance + locked)
+        :param ticker: 화폐를 의미하는 영문 대문자 코드
+        :param contain_req: Remaining-Req 포함여부
+        :return: 주문가능 금액/수량 (주문 중 묶여있는 금액/수량 포함)
+        [contain_req == True 일 경우 Remaining-Req가 포함]
+        """
+        try:
+            # KRW-BTC
+            if '-' in ticker:
+                ticker = ticker.split('-')[1]
 
-    def get_balances(self):
-        '''
-        전체 계좌 조회
-        :return:
-        '''
-        url = "https://api.upbit.com/v1/accounts"
-        headers = self._request_headers()
-        return _send_get_request(url, headers=headers)
+            result = self.get_balances(contain_req=True)
+            balances = result[0]
+            req = result[1]
 
-    def buy_limit_order(self, ticker, price, volume):
-        '''
+            for x in balances:
+                if x['currency'] == ticker:
+                    balance = float(x['balance'])
+                    locked = float(x['locked'])
+                    break
+            if contain_req:
+                return balance + locked, req
+            else:
+                return balance + locked
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+    def get_avg_buy_price(self, ticker='KRW', contain_req=False):
+        """
+        특정 코인/원화의 매수평균가 조회
+        :param ticker: 화폐를 의미하는 영문 대문자 코드
+        :param contain_req: Remaining-Req 포함여부
+        :return: 매수평균가
+        [contain_req == True 일 경우 Remaining-Req가 포함]
+        """
+        try:
+            # KRW-BTC
+            if '-' in ticker:
+                ticker = ticker.split('-')[1]
+
+            result = self.get_balances(contain_req=True)
+            balances = result[0]
+            req = result[1]
+
+            for x in balances:
+                if x['currency'] == ticker:
+                    avg_buy_price = float(x['avg_buy_price'])
+                    break
+            if contain_req:
+                return avg_buy_price, req
+            else:
+                return avg_buy_price
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+    def get_amount(self, ticker, contain_req=False):
+        """
+        특정 코인/원화의 매수금액 조회
+        :param ticker: 화폐를 의미하는 영문 대문자 코드 (ALL 입력시 총 매수금액 조회)
+        :param contain_req: Remaining-Req 포함여부
+        :return: 매수금액
+        [contain_req == True 일 경우 Remaining-Req가 포함]
+        """
+        try:
+            # KRW-BTC
+            if '-' in ticker:
+                ticker = ticker.split('-')[1]
+
+            result = self.get_balances(contain_req=True)
+            balances = result[0]
+            req = result[1]
+
+            amount = 0
+            for x in balances:
+                if x['currency'] == 'KRW':
+                    continue
+
+                avg_buy_price = float(x['avg_buy_price'])
+                balance = float(x['balance'])
+                locked = float(x['locked'])
+
+                if ticker == 'ALL':
+                    amount += avg_buy_price * (balance + locked)
+                elif x['currency'] == ticker:
+                    amount = avg_buy_price * (balance + locked)
+                    break
+            if contain_req:
+                return amount, req
+            else:
+                return amount
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+    # endregion balance
+
+    # region chance
+    def get_chance(self, ticker, contain_req=False):
+        """
+        마켓별 주문 가능 정보를 확인.
+        :param ticker:
+        :param contain_req: Remaining-Req 포함여부
+        :return: 마켓별 주문 가능 정보를 확인
+        [contain_req == True 일 경우 Remaining-Req가 포함]
+        """
+        try:
+            url = "https://api.upbit.com/v1/orders/chance"
+            data = {"market": ticker}
+            headers = self._request_headers(data)
+            result = _send_get_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+    # endregion chance
+
+    # region order
+    def buy_limit_order(self, ticker, price, volume, contain_req=False):
+        """
         지정가 매수
         :param ticker: 마켓 티커
         :param price: 주문 가격
         :param volume: 주문 수량
+        :param contain_req: Remaining-Req 포함여부
         :return:
-        '''
+        """
         try:
             url = "https://api.upbit.com/v1/orders"
             data = {"market": ticker,
@@ -159,57 +235,72 @@ class Upbit:
                     "price": str(price),
                     "ord_type": "limit"}
             headers = self._request_headers(data)
-            return _send_post_request(url, headers=headers, data=data)
+            result = _send_post_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
-    def buy_market_order(self, ticker, price):
+    def buy_market_order(self, ticker, price, contain_req=False):
         """
         시장가 매수
         :param ticker: ticker for cryptocurrency
         :param price: KRW
+        :param contain_req: Remaining-Req 포함여부
         :return:
         """
         try:
             url = "https://api.upbit.com/v1/orders"
-            data = {"market": ticker,               # market ID
-                    "side": "bid",                  # buy
+            data = {"market": ticker,  # market ID
+                    "side": "bid",  # buy
                     "price": str(price),
                     "ord_type": "price"}
             headers = self._request_headers(data)
-            return _send_post_request(url, headers=headers, data=data)
+            result = _send_post_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
-    def sell_market_order(self, ticker, volume):
+    def sell_market_order(self, ticker, volume, contain_req=False):
         """
         시장가 매도 메서드
         :param ticker: 가상화폐 티커
         :param volume: 수량
+        :param contain_req: Remaining-Req 포함여부
         :return:
         """
         try:
             url = "https://api.upbit.com/v1/orders"
-            data = {"market": ticker,               # ticker
-                    "side": "ask",                  # sell
+            data = {"market": ticker,  # ticker
+                    "side": "ask",  # sell
                     "volume": str(volume),
                     "ord_type": "market"}
             headers = self._request_headers(data)
-            return _send_post_request(url, headers=headers, data=data)
+            result = _send_post_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
-    def sell_limit_order(self, ticker, price, volume):
-        '''
+    def sell_limit_order(self, ticker, price, volume, contain_req=False):
+        """
         지정가 매도
         :param ticker: 마켓 티커
         :param price: 주문 가격
         :param volume: 주문 수량
+        :param contain_req: Remaining-Req 포함여부
         :return:
-        '''
+        """
         try:
             url = "https://api.upbit.com/v1/orders"
             data = {"market": ticker,
@@ -218,29 +309,66 @@ class Upbit:
                     "price": str(price),
                     "ord_type": "limit"}
             headers = self._request_headers(data)
-            return _send_post_request(url, headers=headers, data=data)
+            result = _send_post_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
-    def cancel_order(self, uuid):
-        '''
+    def cancel_order(self, uuid, contain_req=False):
+        """
         주문 취소
         :param uuid: 주문 함수의 리턴 값중 uuid
+        :param contain_req: Remaining-Req 포함여부
         :return:
-        '''
+        """
         try:
             url = "https://api.upbit.com/v1/order"
             data = {"uuid": uuid}
             headers = self._request_headers(data)
-            return _send_delete_request(url, headers=headers, data=data)
+            result = _send_delete_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
         except Exception as x:
             print(x.__class__.__name__)
             return None
 
+    def get_order(self, ticker, state='wait', kind='normal', contain_req=False):
+        """
+        주문 리스트 조회
+        :param ticker: market
+        :param state: 주문 상태(wait, done, cancel)
+        :param kind: 주문 유형(normal, watch)
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        # TODO : states, uuids, identifiers 관련 기능 추가 필요
+        try:
+            url = "https://api.upbit.com/v1/orders"
+            data = {'market': ticker,
+                    'state': state,
+                    'kind': kind,
+                    'order_by': 'desc'
+                    }
+            headers = self._request_headers(data)
+            result = _send_get_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+    # endregion order
+
 
 if __name__ == "__main__":
-    with open("upbit.txt") as f:
+    with open("../upbit.txt") as f:
         lines = f.readlines()
         access = lines[0].strip()
         secret = lines[1].strip()
@@ -249,30 +377,29 @@ if __name__ == "__main__":
     upbit = Upbit(access, secret)
 
     # 모든 잔고 조회
-    print(upbit.get_balances())
+    # print(upbit.get_balances())
 
     # 원화 잔고 조회
     print(upbit.get_balance(ticker="KRW"))
-    #print(upbit.get_balance(ticker="KRW-BTC"))
+    print(upbit.get_amount('ALL'))
+    # print(upbit.get_balance(ticker="KRW-BTC"))
     print(upbit.get_balance(ticker="KRW-XRP"))
 
+    print(upbit.get_chance('KRW-HBAR'))
+
+    print(upbit.get_order('KRW-BTC'))
+
     # 매도
-    #print(upbit.sell_limit_order("KRW-XRP", 1000, 20))
+    # print(upbit.sell_limit_order("KRW-XRP", 1000, 20))
 
     # 매수
-    #print(upbit.buy_limit_order("KRW-XRP", 200, 20))
+    # print(upbit.buy_limit_order("KRW-XRP", 200, 20))
 
     # 주문 취소
-    #print(upbit.cancel_order('82e211da-21f6-4355-9d76-83e7248e2c0c'))
+    # print(upbit.cancel_order('82e211da-21f6-4355-9d76-83e7248e2c0c'))
 
     # 시장가 주문 테스트
-    #upbit.buy_market_order("KRW-XRP", 10000)
+    # upbit.buy_market_order("KRW-XRP", 10000)
 
     # 시장가 매도 테스트
-    #upbit.sell_market_order("KRW-XRP", 36)
-
-
-
-
-
-
+    # upbit.sell_market_order("KRW-XRP", 36)
