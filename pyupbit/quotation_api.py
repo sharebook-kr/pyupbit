@@ -16,29 +16,18 @@ def get_tickers(fiat="ALL"):
 
         if isinstance(contents, list):
             markets = [x['market'] for x in contents]
-            # TODO : Python version 별 코드 활성/비활성 방법 연구 필요
-            if sys.version_info > (3, 0):
-                if fiat == "KRW":
-                    return [x for x in markets if x.startswith("KRW")]
-                elif fiat == "BTC":
-                    return [x for x in markets if x.startswith("BTC")]
-                elif fiat == "ETH":
-                    return [x for x in markets if x.startswith("ETH")]
-                elif fiat == "USDT":
-                    return [x for x in markets if x.startswith("USDT")]
-                else:
-                    return markets
+
+            if fiat == "KRW":
+                return [x for x in markets if x.startswith("KRW")]
+            elif fiat == "BTC":
+                return [x for x in markets if x.startswith("BTC")]
+            elif fiat == "ETH":
+                return [x for x in markets if x.startswith("ETH")]
+            elif fiat == "USDT":
+                return [x for x in markets if x.startswith("USDT")]
             else:
-                if fiat is "KRW":
-                    return [x for x in markets if x.startswith("KRW")]
-                elif fiat is "BTC":
-                    return [x for x in markets if x.startswith("BTC")]
-                elif fiat is "ETH":
-                    return [x for x in markets if x.startswith("ETH")]
-                elif fiat is "USDT":
-                    return [x for x in markets if x.startswith("USDT")]
-                else:
-                    return markets
+                return markets
+
         else:
             return None
     except Exception as x:
@@ -47,57 +36,30 @@ def get_tickers(fiat="ALL"):
 
 
 def _get_url_ohlcv(interval):
-    # TODO : Python version 별 코드 활성/비활성 방법 연구 필요
-    if sys.version_info > (3, 0):
-        if interval == "day":
-            url = "https://api.upbit.com/v1/candles/days"
-        elif interval == "minute1":
-            url = "https://api.upbit.com/v1/candles/minutes/1"
-        elif interval == "minute3":
-            url = "https://api.upbit.com/v1/candles/minutes/3"
-        elif interval == "minute5":
-            url = "https://api.upbit.com/v1/candles/minutes/5"
-        elif interval == "minute10":
-            url = "https://api.upbit.com/v1/candles/minutes/10"
-        elif interval == "minute15":
-            url = "https://api.upbit.com/v1/candles/minutes/15"
-        elif interval == "minute30":
-            url = "https://api.upbit.com/v1/candles/minutes/30"
-        elif interval == "minute60":
-            url = "https://api.upbit.com/v1/candles/minutes/60"
-        elif interval == "minute240":
-            url = "https://api.upbit.com/v1/candles/minutes/240"
-        elif interval == "week":
-            url = "https://api.upbit.com/v1/candles/weeks"
-        elif interval == "month":
-            url = "https://api.upbit.com/v1/candles/months"
-        else:
-            url = "https://api.upbit.com/v1/candles/days"
+    if interval == "day":
+        url = "https://api.upbit.com/v1/candles/days"
+    elif interval == "minute1":
+        url = "https://api.upbit.com/v1/candles/minutes/1"
+    elif interval == "minute3":
+        url = "https://api.upbit.com/v1/candles/minutes/3"
+    elif interval == "minute5":
+        url = "https://api.upbit.com/v1/candles/minutes/5"
+    elif interval == "minute10":
+        url = "https://api.upbit.com/v1/candles/minutes/10"
+    elif interval == "minute15":
+        url = "https://api.upbit.com/v1/candles/minutes/15"
+    elif interval == "minute30":
+        url = "https://api.upbit.com/v1/candles/minutes/30"
+    elif interval == "minute60":
+        url = "https://api.upbit.com/v1/candles/minutes/60"
+    elif interval == "minute240":
+        url = "https://api.upbit.com/v1/candles/minutes/240"
+    elif interval == "week" or interval == "weeks":
+        url = "https://api.upbit.com/v1/candles/weeks"
+    elif interval == "month":
+        url = "https://api.upbit.com/v1/candles/months"
     else:
-        if interval is "day":
-            url = "https://api.upbit.com/v1/candles/days"
-        elif interval is "minute1":
-            url = "https://api.upbit.com/v1/candles/minutes/1"
-        elif interval is "minute3":
-            url = "https://api.upbit.com/v1/candles/minutes/3"
-        elif interval is "minute5":
-            url = "https://api.upbit.com/v1/candles/minutes/5"
-        elif interval is "minute10":
-            url = "https://api.upbit.com/v1/candles/minutes/10"
-        elif interval is "minute15":
-            url = "https://api.upbit.com/v1/candles/minutes/15"
-        elif interval is "minute30":
-            url = "https://api.upbit.com/v1/candles/minutes/30"
-        elif interval is "minute60":
-            url = "https://api.upbit.com/v1/candles/minutes/60"
-        elif interval is "minute240":
-            url = "https://api.upbit.com/v1/candles/minutes/240"
-        elif interval is "week":
-            url = "https://api.upbit.com/v1/candles/weeks"
-        elif interval is "month":
-            url = "https://api.upbit.com/v1/candles/months"
-        else:
-            url = "https://api.upbit.com/v1/candles/days"
+        url = "https://api.upbit.com/v1/candles/days"
 
     return url
 
