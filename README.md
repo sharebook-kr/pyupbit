@@ -29,7 +29,6 @@ print(pyupbit.get_tickers())
 ```python
 print(pyupbit.get_tickers(fiat="KRW"))
 print(pyupbit.get_tickers(fiat="BTC"))
-print(pyupbit.get_tickers(fiat="ETH"))
 print(pyupbit.get_tickers(fiat="USDT"))
 ```
 
