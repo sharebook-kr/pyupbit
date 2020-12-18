@@ -92,7 +92,7 @@ print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", base=13))
 
 #### 매수/매도 호가
 ```python
-print(pyupbit.get_orderbook(tickers="KRW-BTC")
+print(pyupbit.get_orderbook(tickers="KRW-BTC"))
 print(pyupbit.get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
 ```  
 
