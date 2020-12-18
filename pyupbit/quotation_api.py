@@ -138,7 +138,7 @@ def get_orderbook(tickers="KRW-BTC"):
     '''
     try:
         url = "https://api.upbit.com/v1/orderbook"
-        contents = _call_public_api(url, markets=tickers)
+        contents = _call_public_api(url, markets=tickers)[0]
         return contents
     except Exception as x:
         print(x.__class__.__name__)
