@@ -122,7 +122,7 @@ def get_current_price(ticker="KRW-BTC"):
                     ret[market] = price
                 return ret
             else:
-                return contents[0]['trade_price']
+                return contents[0][0]['trade_price']
         else:
             return None
     except Exception as x:
