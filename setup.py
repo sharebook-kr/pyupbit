@@ -8,7 +8,7 @@ setup(
     author          = 'Lukas Yoo, Brayden Jo',
     author_email    = 'brayden.jo@outlook.com, jonghun.yoo@outlook.com, pystock@outlook.com',
     install_requires= ['requests', 'pandas', 'pyjwt'],
-    license         = 'MIT',
+    license         = 'Apache License 2.0',
     packages        = ['pyupbit'],
     zip_safe        = False
 )
