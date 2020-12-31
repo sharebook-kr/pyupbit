@@ -110,24 +110,21 @@ def get_current_price(ticker="KRW-BTC"):
     """
     try:
         url = "https://api.upbit.com/v1/ticker"
-        contents = _call_public_api(url, markets=ticker)
-
-        if contents is not None:
-            # 여러 마케을 동시에 조회
-            if isinstance(ticker, list):
-                ret = {}
-                for content in contents:
-                    market = content['market']
-                    price = content['trade_price']
-                    ret[market] = price
-                return ret
-            else:
-                return contents[0]['trade_price']
-        else:
+        contents = _call_public_api(url, markets=ticker)[0]
+        if not contents:
             return None
+
+        if isinstance(ticker, list):
+            ret = {}
+            for content in contents:
+                market = content['market']
+                price = content['trade_price']
+                ret[market] = price
+            return ret
+        else:
+            return contents[0]['trade_price']
     except Exception as x:
         print(x.__class__.__name__)
-        return None
 
 
 def get_orderbook(tickers="KRW-BTC"):
