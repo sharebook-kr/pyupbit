@@ -8,6 +8,12 @@ Python Wrapper for Upbit API
 pip install pyupbit
 ```
 
+pyjwt 모듈을 설치하세요. 
+
+```sh
+pip install pyjwt
+```
+
 ## Import
 ```python
 import pyupbit

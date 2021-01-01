@@ -3,25 +3,25 @@
 import pyupbit
 
 # 1분봉 (최대 200개 요청가능)
-# minute1 = pyupbit.get_ohlcv("KRW-BTC", "minute1")
-# print(minute1)
-# print(type(minute1), minute1.shape)
-#
-# # 3분봉 (최대 200개 요청가능)
-# minute3 = pyupbit.get_ohlcv("KRW-BTC", "minute3")
-# print(minute3)
+minute1 = pyupbit.get_ohlcv("KRW-BTC", "minute1")
+print(minute1)
+print(type(minute1), minute1.shape)
+
+# 3분봉 (최대 200개 요청가능)
+minute3 = pyupbit.get_ohlcv("KRW-BTC", "minute3")
+print(minute3)
 
 # 5분봉 (최대 200개 요청가능)
-#minute5 = pyupbit.get_ohlcv("KRW-BTC", "minute5")
-#print(minute5)
+minute5 = pyupbit.get_ohlcv("KRW-BTC", "minute5")
+print(minute5)
 
 # 10분봉 (최대 200개 요청가능)
-#minute10 = pyupbit.get_ohlcv("KRW-BTC", "minute10")
-#print(minute10)
+minute10 = pyupbit.get_ohlcv("KRW-BTC", "minute10")
+print(minute10)
 
 # 30분봉 (최대 200개 요청가능)
-#minute30 = pyupbit.get_ohlcv("KRW-BTC", "minute30")
-#print(minute30)
+minute30 = pyupbit.get_ohlcv("KRW-BTC", "minute30")
+print(minute30)
 
 # 60분봉 (최대 200개 요청가능)
 minute60 = pyupbit.get_ohlcv("KRW-BTC", "minute60")

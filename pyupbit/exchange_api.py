@@ -1,10 +1,12 @@
-import jwt
-import time
+import jwt          # PyJWT
+import uuid
+import hashlib
 from urllib.parse import urlencode
-
 from pyupbit.request_api import _send_get_request, _send_post_request, _send_delete_request
 
 
+# 원화 마켓 주문 가격 단위
+# https://docs.upbit.com/docs/market-info-trade-price-detail
 def get_tick_size(price):
     if price >= 2000000:
         tick_size = round(price / 1000) * 1000
@@ -32,14 +34,21 @@ class Upbit:
         self.access = access
         self.secret = secret
 
-    def _request_headers(self, data=None):
+    def _request_headers(self, query=None):
         payload = {
             "access_key": self.access,
-            "nonce": int(time.time() * 1000)
+            "nonce": str(uuid.uuid4())
         }
-        if data is not None:
-            payload['query'] = urlencode(data)
-        jwt_token = jwt.encode(payload, self.secret, algorithm="HS256").decode('utf-8')
+
+        if query is not None:
+            m = hashlib.sha512()
+            m.update(urlencode(query).encode())
+            query_hash = m.hexdigest()
+            payload['query_hash'] = query_hash
+            payload['query_hash_alg'] = "SHA512"
+
+        #jwt_token = jwt.encode(payload, self.secret, algorithm="HS256").decode('utf-8')
+        jwt_token = jwt.encode(payload, self.secret, algorithm="HS256")     # PyJWT >= 2.0
         authorization_token = 'Bearer {}'.format(jwt_token)
         headers = {"Authorization": authorization_token}
         return headers
@@ -66,25 +75,27 @@ class Upbit:
 
     def get_balance(self, ticker="KRW", contain_req=False):
         """
-        특정 코인/원화의 잔고 조회
+        특정 코인/원화의 잔고를 조회하는 메소드
         :param ticker: 화폐를 의미하는 영문 대문자 코드
         :param contain_req: Remaining-Req 포함여부
         :return: 주문가능 금액/수량 (주문 중 묶여있는 금액/수량 제외)
         [contain_req == True 일 경우 Remaining-Req가 포함]
         """
         try:
+            # fiat-ticker
             # KRW-BTC
             if '-' in ticker:
                 ticker = ticker.split('-')[1]
 
-            result = self.get_balances(contain_req=True)
-            balances = result[0]
-            req = result[1]
+            balances, req = self.get_balances(contain_req=True)
 
+            # search the current currency
+            balance = 0
             for x in balances:
                 if x['currency'] == ticker:
                     balance = float(x['balance'])
                     break
+
             if contain_req:
                 return balance, req
             else:
@@ -106,15 +117,16 @@ class Upbit:
             if '-' in ticker:
                 ticker = ticker.split('-')[1]
 
-            result = self.get_balances(contain_req=True)
-            balances = result[0]
-            req = result[1]
+            balances, req = self.get_balances(contain_req=True)
 
+            balance = 0
+            locked = 0
             for x in balances:
                 if x['currency'] == ticker:
                     balance = float(x['balance'])
                     locked = float(x['locked'])
                     break
+
             if contain_req:
                 return balance + locked, req
             else:
@@ -136,10 +148,9 @@ class Upbit:
             if '-' in ticker:
                 ticker = ticker.split('-')[1]
 
-            result = self.get_balances(contain_req=True)
-            balances = result[0]
-            req = result[1]
+            balances, req = self.get_balances(contain_req=True)
 
+            avg_buy_price = 0
             for x in balances:
                 if x['currency'] == ticker:
                     avg_buy_price = float(x['avg_buy_price'])
@@ -148,6 +159,7 @@ class Upbit:
                 return avg_buy_price, req
             else:
                 return avg_buy_price
+
         except Exception as x:
             print(x.__class__.__name__)
             return None
@@ -165,9 +177,7 @@ class Upbit:
             if '-' in ticker:
                 ticker = ticker.split('-')[1]
 
-            result = self.get_balances(contain_req=True)
-            balances = result[0]
-            req = result[1]
+            balances, req = self.get_balances(contain_req=True)
 
             amount = 0
             for x in balances:
@@ -368,26 +378,30 @@ class Upbit:
 
 
 if __name__ == "__main__":
+    import pprint
     with open("../upbit.txt") as f:
         lines = f.readlines()
         access = lines[0].strip()
         secret = lines[1].strip()
 
-    # Upbit
+    # Exchange API 사용을 위한 객체 생성
     upbit = Upbit(access, secret)
 
-    # 모든 잔고 조회
-    # print(upbit.get_balances())
+    #-------------------------------------------------------------------------
+    # Exchange API
+    #-------------------------------------------------------------------------
+    # 자산 - 전체 계좌 조회
+    balances = upbit.get_balances()
+    pprint.pprint(balances)
 
     # 원화 잔고 조회
-    print(upbit.get_balance(ticker="KRW"))
-    print(upbit.get_amount('ALL'))
-    # print(upbit.get_balance(ticker="KRW-BTC"))
-    print(upbit.get_balance(ticker="KRW-XRP"))
+    print(upbit.get_balance(ticker="KRW"))          # 보유 KRW
+    print(upbit.get_amount('ALL'))                  # 총매수금액
+    print(upbit.get_balance(ticker="KRW-BTC"))      # 비트코인 보유수량
+    print(upbit.get_balance(ticker="KRW-XRP"))      # 리플 보유수량
 
-    print(upbit.get_chance('KRW-HBAR'))
-
-    print(upbit.get_order('KRW-BTC'))
+    #print(upbit.get_chance('KRW-HBAR'))
+    #print(upbit.get_order('KRW-BTC'))
 
     # 매도
     # print(upbit.sell_limit_order("KRW-XRP", 1000, 20))
