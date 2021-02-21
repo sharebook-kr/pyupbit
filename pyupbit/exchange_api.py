@@ -407,7 +407,7 @@ class Upbit:
     def withdraw_cash(self, amount: str, contain_req=False):
         """
         현금 출금
-        :param amount: 주문 가격
+        :param amount: 출금 액수
         :param contain_req: Remaining-Req 포함여부
         :return:
         """
