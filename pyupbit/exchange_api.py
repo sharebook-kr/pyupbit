@@ -376,6 +376,54 @@ class Upbit:
             return None
     # endregion order
 
+    def withdraw_coin(self, currency, amount, address, secondary_address='None', transaction_type='default', contain_req=False):
+        """
+        코인 출금
+        :param currency: Currency symbol
+        :param amount: 주문 가격
+        :param address: 출금 지갑 주소
+        :param secondary_address: 2차 출금주소 (필요한 코인에 한해서)
+        :param transaction_type: 출금 유형
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com/v1/withdraws/coin"
+            data = {"currency": currency,
+                    "amount": amount,
+                    "address": address,
+                    "secondary_address": secondary_address,
+                    "transaction_type": transaction_type}
+            headers = self._request_headers(data)
+            result = _send_post_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+    
+    def withdraw_cash(self, amount: str, contain_req=False):
+        """
+        현금 출금
+        :param amount: 출금 액수
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com/v1/withdraws/krw"
+            data = {"amount": amount}
+            headers = self._request_headers(data)
+            result = _send_post_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
 
 if __name__ == "__main__":
     import pprint
