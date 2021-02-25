@@ -188,6 +188,8 @@ WebSocket을 이용해서 `현재가`, `호가`, `체결`에 대한 정보를 �
 - 두 번째 파라미터는 구독할 필터를 설정하며 암호화폐의 티커를 입력한다. 현재 버전에서는 원화 시장만을 지원한다.
 
 ```python
+from pyupbit import WebSocketManager
+
 if __name__ == "__main__":
     wm = WebSocketManager("ticker", ["KRW_BTC"])
     for i in range(10):
