@@ -1,35 +1,42 @@
+# UPbit Quatation (시세 조회) API
 import datetime
 import pandas as pd
 import sys
-
 from pyupbit.request_api import _call_public_api
 
 
-def get_tickers(fiat="ALL"):
+def get_tickers(fiat="ALL", limit_info=False):
     """
     마켓 코드 조회 (업비트에서 거래 가능한 마켓 목록 조회)
+    :param fiat: fiat
+    :param limit_info: 요청수 제한 리턴
     :return:
     """
     try:
         url = "https://api.upbit.com/v1/market/all"
-        contents = _call_public_api(url)[0]
 
+        # call REST API 
+        ret = _call_public_api(url)
+        if isinstance(ret, tuple):
+            contents, req_limit_info = ret 
+        else:
+            contents = None 
+            req_limit_info = None
+
+        tickers = None
         if isinstance(contents, list):
             markets = [x['market'] for x in contents]
 
-            if fiat == "KRW":
-                return [x for x in markets if x.startswith("KRW")]
-            elif fiat == "BTC":
-                return [x for x in markets if x.startswith("BTC")]
-            elif fiat == "ETH":
-                return [x for x in markets if x.startswith("ETH")]
-            elif fiat == "USDT":
-                return [x for x in markets if x.startswith("USDT")]
+            if fiat != "ALL":
+                tickers = [x for x in markets if x.startswith(fiat)]
             else:
-                return markets
+                tickers = markets
 
+        if limit_info is False: 
+            return tickers 
         else:
-            return None
+            return tickers, req_limit_info
+
     except Exception as x:
         print(x.__class__.__name__)
         return None
@@ -143,13 +150,32 @@ def get_orderbook(tickers="KRW-BTC"):
 
 
 if __name__ == "__main__":
-    print(get_tickers())
-    print(get_tickers(fiat="KRW"))
+    #------------------------------------------------------
+    # 모든 티커 목록 조회
+    all_tickers = get_tickers()
+    print(all_tickers)
+
+    # 특정 시장의 티커 목록 조회 
+    krw_tickers = get_tickers(fiat="KRW")
+    print(krw_tickers, len(krw_tickers))
+
+    btc_tickers = get_tickers(fiat="BTC")
+    print(btc_tickers, len(btc_tickers))
+
+    usdt_tickers = get_tickers(fiat="USDT")
+    print(usdt_tickers, len(usdt_tickers))
+
+    # 요청 수 제한 얻기
+    all_tickers, limit_info = get_tickers(limit_info=True)
+    print(limit_info)
+
+
+    #print(get_tickers(fiat="KRW"))
     # print(get_tickers(fiat="BTC"))
     # print(get_tickers(fiat="ETH"))
     # print(get_tickers(fiat="USDT"))
 
-    print(get_ohlcv("KRW-BTC"))
+    #print(get_ohlcv("KRW-BTC"))
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="minute1"))
     # print(get_ohlcv("KRW-BTC", interval="minute3"))
