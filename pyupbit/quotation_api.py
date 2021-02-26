@@ -35,7 +35,7 @@ def get_tickers(fiat="ALL"):
         return None
 
 
-def _get_url_ohlcv(interval):
+def get_url_ohlcv(interval):
     if interval == "day":
         url = "https://api.upbit.com/v1/candles/days"
     elif interval == "minute1":
