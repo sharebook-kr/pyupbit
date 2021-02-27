@@ -82,11 +82,13 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
     :return:
     """
     try:
-        url = _get_url_ohlcv(interval=interval)
+        url = get_url_ohlcv(interval=interval)
+
         if datetime.datetime == type(to):
             if to.tzinfo is None:
                 to = to.astimezone()
             to = to.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
         contents = _call_public_api(url, market=ticker, count=count, to=to)[0]
         dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
         df = pd.DataFrame(contents, columns=['opening_price', 'high_price', 'low_price', 'trade_price',
@@ -185,7 +187,12 @@ if __name__ == "__main__":
     #------------------------------------------------------
     #print(get_ohlcv("KRW-BTC"))
     #print(get_ohlcv("KRW-BTC", interval="day", count=5))
-    print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
+    #print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
+
+    to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+    df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)
+    print(df)
+
 
     # print(get_ohlcv("KRW-BTC", interval="minute1"))
     # print(get_ohlcv("KRW-BTC", interval="minute3"))
