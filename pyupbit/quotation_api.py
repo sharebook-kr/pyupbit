@@ -8,7 +8,7 @@ from pyupbit.request_api import _call_public_api
 def get_tickers(fiat="ALL", limit_info=False):
     """
     마켓 코드 조회 (업비트에서 거래 가능한 마켓 목록 조회)
-    :param fiat: fiat
+    :param fiat: "ALL", "KRW", "BTC", "USDT"
     :param limit_info: 요청수 제한 리턴
     :return:
     """
@@ -42,28 +42,33 @@ def get_tickers(fiat="ALL", limit_info=False):
         return None
 
 
-def _get_url_ohlcv(interval):
-    if interval == "day":
+def get_url_ohlcv(interval):
+    """
+    candle에 대한 요청 주소를 얻는 함수
+    :param interval: day(일봉), minute(분봉), week(주봉), 월봉(month)
+    :return: candle 조회에 사용되는 url
+    """
+    if interval in ["day", "days"]:
         url = "https://api.upbit.com/v1/candles/days"
-    elif interval == "minute1":
+    elif interval in ["minute1", "minutes1"]:
         url = "https://api.upbit.com/v1/candles/minutes/1"
-    elif interval == "minute3":
+    elif interval in ["minute3", "minutes3"]:
         url = "https://api.upbit.com/v1/candles/minutes/3"
-    elif interval == "minute5":
+    elif interval in ["minute5", "minutes5"]:
         url = "https://api.upbit.com/v1/candles/minutes/5"
-    elif interval == "minute10":
+    elif interval in ["minute10", "minutes10"]:
         url = "https://api.upbit.com/v1/candles/minutes/10"
-    elif interval == "minute15":
+    elif interval in ["minute15", "minutes15"]:
         url = "https://api.upbit.com/v1/candles/minutes/15"
-    elif interval == "minute30":
+    elif interval in ["minute30", "minutes30"]:
         url = "https://api.upbit.com/v1/candles/minutes/30"
-    elif interval == "minute60":
+    elif interval in ["minute60", "minutes60"]:
         url = "https://api.upbit.com/v1/candles/minutes/60"
-    elif interval == "minute240":
+    elif interval in ["minute240", "minutes240"]:
         url = "https://api.upbit.com/v1/candles/minutes/240"
-    elif interval == "week" or interval == "weeks":
+    elif interval in ["week",  "weeks"]:
         url = "https://api.upbit.com/v1/candles/weeks"
-    elif interval == "month":
+    elif interval in ["month", "months"]:
         url = "https://api.upbit.com/v1/candles/months"
     else:
         url = "https://api.upbit.com/v1/candles/days"
@@ -152,31 +157,32 @@ def get_orderbook(tickers="KRW-BTC"):
 if __name__ == "__main__":
     #------------------------------------------------------
     # 모든 티커 목록 조회
-    all_tickers = get_tickers()
-    print(all_tickers)
+    #all_tickers = get_tickers()
+    #print(all_tickers)
 
     # 특정 시장의 티커 목록 조회 
-    krw_tickers = get_tickers(fiat="KRW")
-    print(krw_tickers, len(krw_tickers))
+    #krw_tickers = get_tickers(fiat="KRW")
+    #print(krw_tickers, len(krw_tickers))
 
-    btc_tickers = get_tickers(fiat="BTC")
-    print(btc_tickers, len(btc_tickers))
+    #btc_tickers = get_tickers(fiat="BTC")
+    #print(btc_tickers, len(btc_tickers))
 
-    usdt_tickers = get_tickers(fiat="USDT")
-    print(usdt_tickers, len(usdt_tickers))
+    #usdt_tickers = get_tickers(fiat="USDT")
+    #print(usdt_tickers, len(usdt_tickers))
 
     # 요청 수 제한 얻기
-    all_tickers, limit_info = get_tickers(limit_info=True)
-    print(limit_info)
+    #all_tickers, limit_info = get_tickers(limit_info=True)
+    #print(limit_info)
 
-
-    #print(get_tickers(fiat="KRW"))
+    # print(get_tickers(fiat="KRW"))
     # print(get_tickers(fiat="BTC"))
-    # print(get_tickers(fiat="ETH"))
     # print(get_tickers(fiat="USDT"))
 
+    #------------------------------------------------------
     #print(get_ohlcv("KRW-BTC"))
-    # print(get_ohlcv("KRW-BTC", interval="day", count=5))
+    #print(get_ohlcv("KRW-BTC", interval="day", count=5))
+    print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
+
     # print(get_ohlcv("KRW-BTC", interval="minute1"))
     # print(get_ohlcv("KRW-BTC", interval="minute3"))
     # print(get_ohlcv("KRW-BTC", interval="minute5"))
