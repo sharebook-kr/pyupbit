@@ -66,6 +66,7 @@ print(pyupbit.get_current_price(["KRW-BTC", "KRW-XRP"]))
 {'KRW-BTC': 8300000.0, 'KRW-XRP': 511.0}
 ```
 
+get_current_price 함수는 최대 100개의 암호화폐에 대한 조회 가능힙니다. 100개 이상의 경우 한 번에 100개씩 조회해야합니다. 
 
 #### 차트 데이터
 ```python
@@ -95,6 +96,7 @@ print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", base=12))
 ```python
 print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", base=13))
 ```
+
 
 #### 매수/매도 호가
 ```python

@@ -189,10 +189,9 @@ if __name__ == "__main__":
     #print(get_ohlcv("KRW-BTC", interval="day", count=5))
     #print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
 
-    to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
-    df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)
-    print(df)
-
+    #to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+    #df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)
+    #print(df)
 
     # print(get_ohlcv("KRW-BTC", interval="minute1"))
     # print(get_ohlcv("KRW-BTC", interval="minute3"))
@@ -205,6 +204,19 @@ if __name__ == "__main__":
     #print(get_ohlcv("KRW-BTC", interval="week"))
     #print(get_daily_ohlcv_from_base("KRW-BTC", base=9))
     #print(get_ohlcv("KRW-BTC", interval="day", count=5))
+
+    krw_tickers = get_tickers(fiat="KRW")
+    print(len(krw_tickers))
+
+    krw_tickers1 = krw_tickers[:100]
+    krw_tickers2 = krw_tickers[100:]
+
+    prices1 = get_current_price(krw_tickers1)
+    prices2 = get_current_price(krw_tickers2)
+
+    #print(prices1)
+    print(prices2)
+
 
     #print(get_current_price("KRW-BTC"))
     #print(get_current_price(["KRW-BTC", "KRW-XRP"]))
