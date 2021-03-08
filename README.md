@@ -66,7 +66,7 @@ print(pyupbit.get_current_price(["KRW-BTC", "KRW-XRP"]))
 {'KRW-BTC': 8300000.0, 'KRW-XRP': 511.0}
 ```
 
-get_current_price 함수는 최대 100개의 암호화폐에 대한 조회 가능힙니다. 100개 이상의 경우 한 번에 100개씩 조회해야합니다. 
+get_current_price 함수는 최대 100개의 암호화폐에 대한 조회 가능힙니다. 100개 이상의 경우 한 번에 100개씩 조회해야합니다.
 
 #### 차트 데이터
 ```python
@@ -193,7 +193,7 @@ WebSocket을 이용해서 `현재가`, `호가`, `체결`에 대한 정보를 �
 from pyupbit import WebSocketManager
 
 if __name__ == "__main__":
-    wm = WebSocketManager("ticker", ["KRW_BTC"])
+    wm = WebSocketManager("ticker", ["KRW-BTC"])
     for i in range(10):
         data = wm.get()
         print(data)
