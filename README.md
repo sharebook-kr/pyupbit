@@ -97,6 +97,10 @@ print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", base=12))
 print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", base=13))
 ```
 
+`to` 옵션을 사용하면 입력된 날짜까지의 데이터를 얻을 수 있다. 이 때 입력한 날짜 보다 한 interval 이전의 값을 서버가 반환한다. 예를 들어 다음의 경우 `2020-10-10` 보다 1분 이전 (`2020-10-09 23:59:00`)까지의 200개 데이터를 반환한다.
+```python
+print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", interval="minute1", to=20201010))
+```
 
 #### 매수/매도 호가
 ```python
