@@ -84,16 +84,17 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
     try:
         url = get_url_ohlcv(interval=interval)
 
-        if to != None:
-            if isinstance(to, str):
-                to = pd.to_datetime(to).to_pydatetime()
-            elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
-                to = to.to_pydatetime()
+        if to == None:
+            to = datetime.datetime.now()
+        elif isinstance(to, str):
+            to = pd.to_datetime(to).to_pydatetime()
+        elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
+            to = to.to_pydatetime()
 
-            if to.tzinfo is None:
-                to = to.astimezone()
-            to = to.astimezone(datetime.timezone.utc)
-            to = to.strftime("%Y-%m-%d %H:%M:%S")
+        if to.tzinfo is None:
+            to = to.astimezone()
+        to = to.astimezone(datetime.timezone.utc)
+        to = to.strftime("%Y-%m-%d %H:%M:%S")
 
         contents = _call_public_api(url, market=ticker, count=count, to=to)[0]
         dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
@@ -200,16 +201,16 @@ if __name__ == "__main__":
     #print(df)
 
     # string Test
-    df = get_ohlcv("KRW-BTC", interval="minute1", to="20201010")
+    df = get_ohlcv("KRW-BTC", interval="minute1", to="2018-08-25 12:00:00")
     print(df)
 
     # time stamp Test
-    df = get_ohlcv("KRW-BTC", interval="minute1")
-    print(get_ohlcv("KRW-BTC", interval="minute1", to=df.index[0]))
+    # df = get_ohlcv("KRW-BTC", interval="minute1")
+    # print(get_ohlcv("KRW-BTC", interval="minute1", to=df.index[0]))
 
-    # DateTime Test
-    now = datetime.datetime.now() - datetime.timedelta(days=1000)
-    print(get_ohlcv("KRW-BTC", interval="minute1", to=now))
+    # # DateTime Test
+    # now = datetime.datetime.now() - datetime.timedelta(days=1000)
+    # print(get_ohlcv("KRW-BTC", interval="minute1", to=now))
     # print(get_ohlcv("KRW-BTC", interval="minute1", to="2018-01-01 12:00:00"))
     # print(get_ohlcv("KRW-BTC", interval="minute3"))
     # print(get_ohlcv("KRW-BTC", interval="minute5"))
