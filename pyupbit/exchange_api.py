@@ -376,6 +376,28 @@ class Upbit:
             return None
     # endregion order
 
+    def get_individual_order(self, uuid, contain_req=False):
+        """
+        주문 리스트 조회
+        :param uuid: 주문 id
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        # TODO : states, uuids, identifiers 관련 기능 추가 필요
+        try:
+            url = "https://api.upbit.com/v1/order"
+            data = {'uuid': uuid}
+            headers = self._request_headers(data)
+            result = _send_get_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+    # endregion order
+
     def withdraw_coin(self, currency, amount, address, secondary_address='None', transaction_type='default', contain_req=False):
         """
         코인 출금
