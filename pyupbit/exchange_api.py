@@ -445,6 +445,28 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
+    
+    def get_individual_withdraw_order(self, uuid: str, txid: str, currency: str, contain_req=False):
+        """
+        현금 출금
+        :param uuid: 출금 UUID
+        :param txid: 출금 TXID
+        :param currency: Currency 코드
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com/v1/withdraw"
+            data = {"uuid": uuid, "txid": txid, "currency": currency}
+            headers = self._request_headers(data)
+            result = _send_post_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
 
 
 if __name__ == "__main__":
