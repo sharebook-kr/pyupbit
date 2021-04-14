@@ -21,7 +21,7 @@ def _parse_remaining_req(remaining_req):
         return None, None, None
 
 
-def requests_retry_session(retries=5, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None):
+def requests_retry_session(retries=5, backoff_factor=0.2, status_forcelist=(500, 502, 504), session=None):
     """
 
     :param retries:
