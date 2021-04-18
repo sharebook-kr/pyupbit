@@ -115,11 +115,11 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
                                                 'candle_acc_trade_volume'],
                             index=dt_list)
             df = df.sort_index()
+            if df.shape[0] == 0:
+                break
             dfs += [df]
 
             to = df.index[0].to_pydatetime()
-            if to < datetime.datetime(2017, 9, 26):
-                break
             time.sleep(0.1)
 
         df = pd.concat(dfs).sort_index()
