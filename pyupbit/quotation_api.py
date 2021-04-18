@@ -2,6 +2,7 @@
 import datetime
 import pandas as pd
 import sys
+import time
 from pyupbit.request_api import _call_public_api
 
 
@@ -81,6 +82,7 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
     캔들 조회
     :return:
     """
+    MAX_CALL_COUNT = 200
     try:
         url = get_url_ohlcv(interval=interval)
 
@@ -91,20 +93,40 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
         elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
             to = to.to_pydatetime()
 
-        if to.tzinfo is None:
-            to = to.astimezone()
-        to = to.astimezone(datetime.timezone.utc)
-        to = to.strftime("%Y-%m-%d %H:%M:%S")
+        dfs = []
+        count = max(count, 1)
+        call_count = MAX_CALL_COUNT       
+        n_calls, remainder = divmod(count, MAX_CALL_COUNT)
 
-        contents = _call_public_api(url, market=ticker, count=count, to=to)[0]
-        dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
-        df = pd.DataFrame(contents, columns=['opening_price', 'high_price', 'low_price', 'trade_price',
-                                             'candle_acc_trade_volume'],
-                          index=dt_list)
+        for n_call in range(n_calls + 1):
+            if n_call == n_calls:
+                call_count = remainder
+                if call_count == 0:
+                    break
+
+            if to.tzinfo is None:
+                to = to.astimezone()
+            to = to.astimezone(datetime.timezone.utc)
+            to = to.strftime("%Y-%m-%d %H:%M:%S")
+
+            contents = _call_public_api(url, market=ticker, count=call_count, to=to)[0]
+            dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
+            df = pd.DataFrame(contents, columns=['opening_price', 'high_price', 'low_price', 'trade_price',
+                                                'candle_acc_trade_volume'],
+                            index=dt_list)
+            df = df.sort_index()
+            dfs += [df]
+
+            to = df.index[0].to_pydatetime()
+            if to < datetime.datetime(2017, 9, 26):
+                break
+            time.sleep(0.1)
+
+        df = pd.concat(dfs).sort_index()
         df = df.rename(
             columns={"opening_price": "open", "high_price": "high", "low_price": "low", "trade_price": "close",
                      "candle_acc_trade_volume": "volume"})
-        return df.sort_index()
+        return df
     except Exception as x:
         print(x.__class__.__name__)
         return None
