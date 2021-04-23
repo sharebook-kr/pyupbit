@@ -459,7 +459,7 @@ class Upbit:
             url = "https://api.upbit.com/v1/withdraw"
             data = {"uuid": uuid, "txid": txid, "currency": currency}
             headers = self._request_headers(data)
-            result = _send_post_request(url, headers=headers, data=data)
+            result = _send_get_request(url, headers=headers, data=data)
             if contain_req:
                 return result
             else:
