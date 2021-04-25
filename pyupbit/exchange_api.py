@@ -446,7 +446,7 @@ class Upbit:
             print(x.__class__.__name__)
             return None
     
-    def get_individual_withdraw_order(self, uuid: str, txid: str, currency: str, contain_req=False):
+    def get_individual_withdraw_order(self, uuid: str, currency: str, contain_req=False):
         """
         현금 출금
         :param uuid: 출금 UUID
@@ -457,7 +457,7 @@ class Upbit:
         """
         try:
             url = "https://api.upbit.com/v1/withdraw"
-            data = {"uuid": uuid, "txid": txid, "currency": currency}
+            data = {"uuid": uuid, "currency": currency}
             headers = self._request_headers(data)
             result = _send_get_request(url, headers=headers, data=data)
             if contain_req:
