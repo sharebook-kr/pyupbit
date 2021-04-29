@@ -24,7 +24,7 @@ import pyupbit
 - 종목, 캔들, 체결, 티커, 호가 API는 분당 600회, 초당 10회 사용 가능합니다.
 
 ####  암호화폐 목록
-`giet_tickers` 함수는 업비트가 지원하는 모든 암호화폐 목록을 얻어옵니다.
+`get_tickers` 함수는 업비트가 지원하는 모든 암호화폐 목록을 얻어옵니다.
 ```python
 print(pyupbit.get_tickers())
 ```
