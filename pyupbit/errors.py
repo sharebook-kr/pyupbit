@@ -1,6 +1,6 @@
 class UpbitError(Exception):
-    """Base 에러 클래스"""
-    pass 
+    def __str__(self):
+        return "Upbit Base Error"
 
 
 class CreateAskError(UpbitError):
@@ -71,3 +71,15 @@ class NoAutorizationIP(UpbitError):
 class OutOfScope(UpbitError):
     def __str__(self):
         return "허용되지 않은 기능입니다."
+
+
+class TooManyRequests(UpbitError):
+    def __str__(self):
+        return "요청 수 제한을 초과했습니다."
+
+
+def raise_error(code):
+    if code == 429:
+        raise TooManyRequests()
+    else:
+        raise UpbitError()

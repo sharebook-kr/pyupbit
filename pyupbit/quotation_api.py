@@ -1,8 +1,60 @@
-# UPbit Quatation (시세 조회) API
+# Upbit Quatation (시세 조회) API
 import datetime
 import pandas as pd
 import sys
 from pyupbit.request_api import _call_public_api
+from pyupbit.errors import UpbitError, TooManyRequests, raise_error
+import requests
+import re
+
+
+def parse_remaining_req(data):
+    """요청 제한 데이터 파싱 함수
+
+    Args:
+        data (str): "{'group': 'market', 'min': '573', 'sec': '2'}"
+
+    Returns:
+        dict: {'group': 'market', 'min': 573, 'sec': 2}
+    """
+    p = re.compile("group=([a-z]+); min=([0-9]+); sec=([0-9]+)")
+    m = p.search(data)
+    ret = {
+        'group': m.group(1), 
+        'min': int(m.group(2)), 
+        'sec': int(m.group(3))
+    }
+    return ret 
+
+
+def fetch_market(isDetails=False, limit_info=False):
+    """업비트에서 거래 가능한 마켓 목록
+
+    Args:
+        isDetails (bool, optional): True: 상세조회, False: 비 상세조회. Defaults to False.
+        limit_info (bool, optional): True: 요청 수 제한 정보 리턴, False: 요청 수 제한 정보 리턴 받지 않음. Defaults to False.
+
+    Returns:
+        list, (dict): 마켓 목록 리스트, 요청 제한 정보 딕셔너리 
+    """
+    url = "https://api.upbit.com/v1/market/all"
+
+    if isDetails:
+        query_string = {"isDetails": "true"}
+    else:
+        query_string = {"isDetails": "false"}
+    resp = requests.get(url, params=query_string)
+
+    if resp.status_code == 200:
+        remaining_req = resp.headers.get('Remaining-Req')
+        limit = parse_remaining_req(remaining_req)
+        data = resp.json()
+        if limit_info:
+            return data, limit 
+        else:
+            return data
+    else:
+        raise_error(resp.status_code) 
 
 
 def get_tickers(fiat="ALL", limit_info=False):
@@ -168,7 +220,15 @@ def get_orderbook(tickers="KRW-BTC"):
 
 
 if __name__ == "__main__":
-    #------------------------------------------------------
+    try:
+        for i in range(20):
+            market_all, limit = fetch_market(isDetails=True, limit_info=True)
+    except TooManyRequests as e:
+        print(e)
+    except UpbitError as e:
+        print(e)
+
+
     # 모든 티커 목록 조회
     #all_tickers = get_tickers()
     #print(all_tickers)
@@ -201,8 +261,8 @@ if __name__ == "__main__":
     #print(df)
 
     # string Test
-    df = get_ohlcv("KRW-BTC", interval="minute1", to="2018-08-25 12:00:00")
-    print(df)
+    #df = get_ohlcv("KRW-BTC", interval="minute1", to="2018-08-25 12:00:00")
+    #print(df)
 
     # time stamp Test
     # df = get_ohlcv("KRW-BTC", interval="minute1")
