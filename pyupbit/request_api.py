@@ -1,8 +1,5 @@
 import re
-
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 getframe_expr = 'sys._getframe({}).f_code.co_name'
 
@@ -21,28 +18,6 @@ def _parse_remaining_req(remaining_req):
         return None, None, None
 
 
-def requests_retry_session(retries=5, backoff_factor=0.2, status_forcelist=(500, 502, 504), session=None):
-    """
-
-    :param retries:
-    :param backoff_factor:
-    :param status_forcelist:
-    :param session:
-    :return:
-    """
-    s = session or requests.Session()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist)
-    adapter = HTTPAdapter(max_retries=retry)
-    s.mount('http://', adapter)
-    s.mount('https://', adapter)
-    return s
-
-
 def _call_public_api(url, **kwargs):
     """
 
@@ -51,7 +26,7 @@ def _call_public_api(url, **kwargs):
     :return:
     """
     try:
-        resp = requests_retry_session().get(url, params=kwargs)
+        resp = requests.get(url, params=kwargs)
         remaining_req_dict = {}
         remaining_req = resp.headers.get('Remaining-Req')
         if remaining_req is not None:
@@ -75,7 +50,7 @@ def _send_post_request(url, headers=None, data=None):
     :return:
     """
     try:
-        resp = requests_retry_session().post(url, headers=headers, data=data)
+        resp = requests.post(url, headers=headers, data=data)
         remaining_req_dict = {}
         remaining_req = resp.headers.get('Remaining-Req')
         if remaining_req is not None:
@@ -99,7 +74,7 @@ def _send_get_request(url, headers=None, data=None):
     :return:
     """
     try:
-        resp = requests_retry_session().get(url, headers=headers, data=data)
+        resp = requests.get(url, headers=headers, data=data)
         remaining_req_dict = {}
         remaining_req = resp.headers.get('Remaining-Req')
         if remaining_req is not None:
@@ -124,7 +99,7 @@ def _send_delete_request(url, headers=None, data=None):
     :return:
     """
     try:
-        resp = requests_retry_session().delete(url, headers=headers, data=data)
+        resp = requests.delete(url, headers=headers, data=data)
         remaining_req_dict = {}
         remaining_req = resp.headers.get('Remaining-Req')
         if remaining_req is not None:

@@ -368,7 +368,7 @@ class Upbit:
                 url = "https://api.upbit.com/v1/order"
                 data = {'uuid': ticker_or_uuid}
                 headers = self._request_headers(data)
-                result = _send_get_request(url, headers=headers, data=data)                
+                result = _send_get_request(url, headers=headers, data=data)
             else :
 
                 url = "https://api.upbit.com/v1/orders"
@@ -437,7 +437,7 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
-    
+
     def withdraw_cash(self, amount: str, contain_req=False):
         """
         현금 출금
@@ -457,7 +457,7 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
-    
+
     def get_individual_withdraw_order(self, uuid: str, currency: str, contain_req=False):
         """
         현금 출금

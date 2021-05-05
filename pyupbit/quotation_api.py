@@ -21,11 +21,11 @@ def parse_remaining_req(data):
     p = re.compile("group=([a-z]+); min=([0-9]+); sec=([0-9]+)")
     m = p.search(data)
     ret = {
-        'group': m.group(1), 
-        'min': int(m.group(2)), 
+        'group': m.group(1),
+        'min': int(m.group(2)),
         'sec': int(m.group(3))
     }
-    return ret 
+    return ret
 
 
 def fetch_market(isDetails=False, limit_info=False):
@@ -36,7 +36,7 @@ def fetch_market(isDetails=False, limit_info=False):
         limit_info (bool, optional): True: 요청 수 제한 정보 리턴, False: 요청 수 제한 정보 리턴 받지 않음. Defaults to False.
 
     Returns:
-        list, (dict): 마켓 목록 리스트, 요청 제한 정보 딕셔너리 
+        list, (dict): 마켓 목록 리스트, 요청 제한 정보 딕셔너리
     """
     url = "https://api.upbit.com/v1/market/all"
 
@@ -51,11 +51,11 @@ def fetch_market(isDetails=False, limit_info=False):
         limit = parse_remaining_req(remaining_req)
         data = resp.json()
         if limit_info:
-            return data, limit 
+            return data, limit
         else:
             return data
     else:
-        raise_error(resp.status_code) 
+        raise_error(resp.status_code)
 
 
 def get_tickers(fiat="ALL", limit_info=False):
@@ -147,7 +147,7 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
 
         dfs = []
         count = max(count, 1)
-        call_count = MAX_CALL_COUNT       
+        call_count = MAX_CALL_COUNT
         n_calls, remainder = divmod(count, MAX_CALL_COUNT)
 
         for n_call in range(n_calls + 1):
@@ -242,49 +242,49 @@ def get_orderbook(tickers="KRW-BTC"):
 
 
 if __name__ == "__main__":
-    try:
-        for i in range(20):
-            market_all, limit = fetch_market(isDetails=True, limit_info=True)
-    except TooManyRequests as e:
-        print(e)
-    except UpbitError as e:
-        print(e)
+    # try:
+    #     for i in range(20):
+    #         market_all, limit = fetch_market(isDetails=True, limit_info=True)
+    # except TooManyRequests as e:
+    #     print(e)
+    # except UpbitError as e:
+    #     print(e)
 
 
     # 모든 티커 목록 조회
-    #all_tickers = get_tickers()
-    #print(all_tickers)
+    all_tickers = get_tickers()
+    print(all_tickers)
 
     # 특정 시장의 티커 목록 조회
-    #krw_tickers = get_tickers(fiat="KRW")
-    #print(krw_tickers, len(krw_tickers))
+    # krw_tickers = get_tickers(fiat="KRW")
+    # print(krw_tickers, len(krw_tickers))
 
     #btc_tickers = get_tickers(fiat="BTC")
-    #print(btc_tickers, len(btc_tickers))
+    # print(btc_tickers, len(btc_tickers))
 
     #usdt_tickers = get_tickers(fiat="USDT")
-    #print(usdt_tickers, len(usdt_tickers))
+    # print(usdt_tickers, len(usdt_tickers))
 
     # 요청 수 제한 얻기
     #all_tickers, limit_info = get_tickers(limit_info=True)
-    #print(limit_info)
+    # print(limit_info)
 
     # print(get_tickers(fiat="KRW"))
     # print(get_tickers(fiat="BTC"))
     # print(get_tickers(fiat="USDT"))
 
     #------------------------------------------------------
-    #print(get_ohlcv("KRW-BTC"))
-    #print(get_ohlcv("KRW-BTC", interval="day", count=5))
-    #print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
+    # print(get_ohlcv("KRW-BTC"))
+    # print(get_ohlcv("KRW-BTC", interval="day", count=5))
+    # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
 
-    #to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
-    #df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)
-    #print(df)
+    # to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+    # df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)
+    # print(df)
 
     # string Test
-    #df = get_ohlcv("KRW-BTC", interval="minute1", to="2018-08-25 12:00:00")
-    #print(df)
+    # df = get_ohlcv("KRW-BTC", interval="minute1", to="2018-08-25 12:00:00")
+    # print(df)
 
     # time stamp Test
     # df = get_ohlcv("KRW-BTC", interval="minute1")
@@ -297,13 +297,14 @@ if __name__ == "__main__":
     # print(get_ohlcv("KRW-BTC", interval="minute3"))
     # print(get_ohlcv("KRW-BTC", interval="minute5"))
     # print(get_ohlcv("KRW-BTC", interval="minute10"))
-    #print(get_ohlcv("KRW-BTC", interval="minute15"))
-    #print(get_ohlcv("KRW-BTC", interval="minute30"))
-    #print(get_ohlcv("KRW-BTC", interval="minute60"))
-    #print(get_ohlcv("KRW-BTC", interval="minute240"))
-    #print(get_ohlcv("KRW-BTC", interval="week"))
-    #print(get_daily_ohlcv_from_base("KRW-BTC", base=9))
-    #print(get_ohlcv("KRW-BTC", interval="day", count=5))
+    # print(get_ohlcv("KRW-BTC", interval="minute15"))
+    # print(get_ohlcv("KRW-BTC", interval="minute30"))
+    # print(get_ohlcv("KRW-BTC", interval="minute60"))
+    # print(get_ohlcv("KRW-BTC", interval="minute240"))
+    # print(get_ohlcv("KRW-BTC", interval="week"))
+    # print(get_daily_ohlcv_from_base("KRW-BTC", base=9))
+    # print(get_ohlcv("KRW-BTC", interval="day", count=5))
+
 
     # krw_tickers = get_tickers(fiat="KRW")
     # print(len(krw_tickers))
@@ -314,12 +315,12 @@ if __name__ == "__main__":
     # prices1 = get_current_price(krw_tickers1)
     # prices2 = get_current_price(krw_tickers2)
 
-    #print(prices1)
+    # print(prices1)
     # print(prices2)
 
 
-    #print(get_current_price("KRW-BTC"))
-    #print(get_current_price(["KRW-BTC", "KRW-XRP"]))
+    # print(get_current_price("KRW-BTC"))
+    # print(get_current_price(["KRW-BTC", "KRW-XRP"]))
 
-    #print(get_orderbook(tickers=["KRW-BTC"]))
-    #print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
+    # print(get_orderbook(tickers=["KRW-BTC"]))
+    # print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
