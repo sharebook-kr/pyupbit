@@ -1,4 +1,5 @@
 import jwt          # PyJWT
+import re
 import uuid
 import hashlib
 from urllib.parse import urlencode
@@ -348,7 +349,7 @@ class Upbit:
             print(x.__class__.__name__)
             return None
 
-    def get_order(self, ticker, state='wait', kind='normal', contain_req=False):
+    def get_order(self, ticker_or_uuid, state='wait', kind='normal', contain_req=False):
         """
         주문 리스트 조회
         :param ticker: market
@@ -357,16 +358,28 @@ class Upbit:
         :param contain_req: Remaining-Req 포함여부
         :return:
         """
-        # TODO : states, uuids, identifiers 관련 기능 추가 필요
+        # TODO : states, identifiers 관련 기능 추가 필요
         try:
-            url = "https://api.upbit.com/v1/orders"
-            data = {'market': ticker,
-                    'state': state,
-                    'kind': kind,
-                    'order_by': 'desc'
-                    }
-            headers = self._request_headers(data)
-            result = _send_get_request(url, headers=headers, data=data)
+            p = re.compile(r"^\w+-\w+-\w+-\w+-\w+$")
+            # 정확히는 입력을 대문자로 변환 후 다음 정규식을 적용해야 함
+            # - r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"
+            is_uuid = len(p.findall(ticker_or_uuid)) > 0
+            if is_uuid:
+                url = "https://api.upbit.com/v1/order"
+                data = {'uuid': ticker_or_uuid}
+                headers = self._request_headers(data)
+                result = _send_get_request(url, headers=headers, data=data)                
+            else :
+
+                url = "https://api.upbit.com/v1/orders"
+                data = {'market': ticker,
+                        'state': state,
+                        'kind': kind,
+                        'order_by': 'desc'
+                        }
+                headers = self._request_headers(data)
+                result = _send_get_request(url, headers=headers, data=data)
+
             if contain_req:
                 return result
             else:
@@ -374,7 +387,6 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
-    # endregion order
 
     def get_individual_order(self, uuid, contain_req=False):
         """
