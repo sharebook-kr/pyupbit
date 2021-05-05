@@ -164,7 +164,7 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
             contents = _call_public_api(url, market=ticker, count=call_count, to=to)[0]
             dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
             df = pd.DataFrame(contents, columns=['opening_price', 'high_price', 'low_price', 'trade_price',
-                                                'candle_acc_trade_volume'],
+                                                'candle_acc_trade_volume', 'candle_acc_trade_price'],
                             index=dt_list)
             df = df.sort_index()
             if df.shape[0] == 0:
@@ -177,7 +177,7 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
         df = pd.concat(dfs).sort_index()
         df = df.rename(
             columns={"opening_price": "open", "high_price": "high", "low_price": "low", "trade_price": "close",
-                     "candle_acc_trade_volume": "volume"})
+                     "candle_acc_trade_volume": "volume", "candle_acc_trade_price": "value"})
         return df
     except Exception as x:
         print(x.__class__.__name__)
@@ -274,7 +274,7 @@ if __name__ == "__main__":
     # print(get_tickers(fiat="USDT"))
 
     #------------------------------------------------------
-    # print(get_ohlcv("KRW-BTC"))
+    print(get_ohlcv("KRW-BTC"))
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
 
