@@ -40,7 +40,7 @@ class WebSocketManager(mp.Process):
 
     async def __connect_socket(self):
         uri = "wss://api.upbit.com/websocket/v1"
-        async with websockets.connect(uri, ping_interval=None) as websocket:
+        async with websockets.connect(uri, ping_interval=60) as websocket:
             data = [{"ticket": str(uuid.uuid4())[:6]}, {"type": self.type, "codes": self.codes}]
             await websocket.send(json.dumps(data))
 
@@ -69,3 +69,4 @@ if __name__ == "__main__":
     for i in range(3):
         data = wm.get()
         print(data)
+    wm.terminate()
