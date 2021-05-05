@@ -129,7 +129,7 @@ def get_url_ohlcv(interval):
     return url
 
 
-def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
+def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
     """
     캔들 조회
     :return:
@@ -172,7 +172,7 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None):
             dfs += [df]
 
             to = df.index[0].to_pydatetime()
-            time.sleep(0.1)
+            time.sleep(period)
 
         df = pd.concat(dfs).sort_index()
         df = df.rename(
@@ -288,6 +288,9 @@ if __name__ == "__main__":
 
     # time stamp Test
     # df = get_ohlcv("KRW-BTC", interval="minute1")
+    # print(df)
+    df = get_ohlcv("KRW-BTC", interval="minute1", count=400)
+    print(len(df))
     # print(get_ohlcv("KRW-BTC", interval="minute1", to=df.index[0]))
 
     # # DateTime Test
