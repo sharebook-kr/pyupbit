@@ -93,6 +93,12 @@ print(len(df))
 5
 ```
 
+`get_ohlcv` 함수는 웹 서버로 200개씩 데이터를 요청합니다. 200개 이상의 데이터를 요청한다면 0.1(default) 주기로 데이터를 수집합니다. 다른 API와 함께 사용한다면 조회 주기(`period`)를 늘려야 합니다. 이 때 `period` 옵션을 사용해서 주기를 초(second) 단위로 지정할 수 있습니다. 조회하는 데이터의 갯수가 200개 이하라면 period 옵션은 무시됩니다.
+
+```python
+df = pyupbit.get_ohlcv("KRW-BTC", count=600, period=1)
+```
+
 `interval` 파라미터는 조회단위를 지정합니다. 파라미터에는 다음 값을 지정할 수 있습니다.
 - `day`/`minute1`/`minute3`/`minute5`/`minute10`/`minute15`/`minute30`/`minute60`/`minute240`/`week`/`month`
 
@@ -242,7 +248,7 @@ print(upbit.buy_limit_order("KRW-XRP", 613, 10))
 ```
 
 #### 시장가 매수/매도 주문
-시장가 매수는 매우선 매도호가에 즉시 매수합니다. `buy_market_order` 메서드로 티커와 매수 금액만을 입력합니다. 매수 금액은 수수료를 포함한 금액입니다. 다음 예제에서 주문한 10000원은 수수료가 포함된 금액입니다. 수수료가 0.05%라면 수수료를 제외한 9995원만이 주문에 사용됩니다.
+시장가 매수는 최우선 매도호가에 즉시 매수합니다. `buy_market_order` 메서드로 티커와 매수 금액만을 입력합니다. 매수 금액은 수수료를 제외한 금액입니다. 다음 예제에서 주문한 10000원은 수수료가 제외된 금액입니다. 수수료가 0.05%라면 수수료를 포함한 10005원의 현금을 보유하고 있어야 합니다.
 
 ```python
 print(upbit.buy_market_order("KRW-XRP", 10000))
@@ -280,7 +286,7 @@ upbit.get_order("KRW-LTC")
   'trades_count': 0}]
 ```
 
-`state` 파라미터를 사용하면 완료된 주문을 조회할 수 있습니다.
+`state` 파라미터를 사용하면 완료된 주문들을 조회할 수 있습니다.
 
 ```python
 print(upbit.get_order("KRW-LTC", state="done"))
@@ -318,6 +324,16 @@ print(upbit.get_order("KRW-LTC", state="done"))
   'trades_count': 2}]
 ```
 
+`uuid`를 사용해서 특정 주문을 상세 조회할 수 있습니다. `uuid`를 사용하면 다른 파라미터는 무시됩니다.
+```python
+order = upbit.get_order('50e184b3-9b4f-4bb0-9c03-30318e3ff10a')
+print(order)
+```
+
+결과를 참고하면 지정가 매도를 실행했으며 주문은 취소(`cancel`) 됐음을 알 수 있습니다
+```text
+{'uuid': '50e184b3-9b4f-4bb0-9c03-30318e3ff10a', 'side': 'ask', 'ord_type': 'limit', 'price': '250000.0', 'state': 'cancel', 'market': 'KRW-LTC', 'created_at': '2021-03-25T14:10:53+09:00', 'volume': '1.0', 'remaining_volume': '1.0', 'reserved_fee': '0.0', 'remaining_fee': '0.0', 'paid_fee': '0.0', 'locked': '1.0', 'executed_volume': '0.0', 'trades_count': 0, 'trades': []}
+```
 
 #### 매수/매도 주문 취소
 주문 함수의 리턴 값 중 uuid 값을 사용해서 주문을 취소할 수 있습니다.

@@ -483,7 +483,7 @@ class Upbit:
 
 if __name__ == "__main__":
     import pprint
-    with open("../upbit.txt") as f:
+    with open("조회전용키.txt") as f:
         lines = f.readlines()
         access = lines[0].strip()
         secret = lines[1].strip()
@@ -495,14 +495,15 @@ if __name__ == "__main__":
     # Exchange API
     #-------------------------------------------------------------------------
     # 자산 - 전체 계좌 조회
-    balances = upbit.get_balances()
-    pprint.pprint(balances)
-
-    # 원화 잔고 조회
-    print(upbit.get_balance(ticker="KRW"))          # 보유 KRW
-    print(upbit.get_amount('ALL'))                  # 총매수금액
-    print(upbit.get_balance(ticker="KRW-BTC"))      # 비트코인 보유수량
-    print(upbit.get_balance(ticker="KRW-XRP"))      # 리플 보유수량
+    # balances = upbit.get_balances()
+    # pprint.pprint(balances)
+    order = upbit.get_order('50e184b3-9b4f-4bb0-9c03-30318e3ff10a')
+    print(order)
+    # # 원화 잔고 조회
+    # print(upbit.get_balance(ticker="KRW"))          # 보유 KRW
+    # print(upbit.get_amount('ALL'))                  # 총매수금액
+    # print(upbit.get_balance(ticker="KRW-BTC"))      # 비트코인 보유수량
+    # print(upbit.get_balance(ticker="KRW-XRP"))      # 리플 보유수량
 
     #print(upbit.get_chance('KRW-HBAR'))
     #print(upbit.get_order('KRW-BTC'))

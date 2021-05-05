@@ -147,21 +147,15 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
 
         dfs = []
         count = max(count, 1)
-        call_count = MAX_CALL_COUNT
-        n_calls, remainder = divmod(count, MAX_CALL_COUNT)
-
-        for n_call in range(n_calls + 1):
-            if n_call == n_calls:
-                call_count = remainder
-                if call_count == 0:
-                    break
+        for pos in range(count, 0, -200):
+            query_count = min(MAX_CALL_COUNT, pos)
 
             if to.tzinfo is None:
                 to = to.astimezone()
             to = to.astimezone(datetime.timezone.utc)
             to = to.strftime("%Y-%m-%d %H:%M:%S")
 
-            contents = _call_public_api(url, market=ticker, count=call_count, to=to)[0]
+            contents = _call_public_api(url, market=ticker, count=query_count, to=to)[0]
             dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
             df = pd.DataFrame(contents, columns=['opening_price', 'high_price', 'low_price', 'trade_price',
                                                 'candle_acc_trade_volume', 'candle_acc_trade_price'],
@@ -172,7 +166,9 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
             dfs += [df]
 
             to = df.index[0].to_pydatetime()
-            time.sleep(period)
+
+            if pos > 200:
+                time.sleep(period)
 
         df = pd.concat(dfs).sort_index()
         df = df.rename(
@@ -274,7 +270,7 @@ if __name__ == "__main__":
     # print(get_tickers(fiat="USDT"))
 
     #------------------------------------------------------
-    print(get_ohlcv("KRW-BTC"))
+    # print(get_ohlcv("KRW-BTC"))
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
 
@@ -289,7 +285,9 @@ if __name__ == "__main__":
     # time stamp Test
     # df = get_ohlcv("KRW-BTC", interval="minute1")
     # print(df)
+    df = get_ohlcv("KRW-BTC", interval="minute1", count=401)
     df = get_ohlcv("KRW-BTC", interval="minute1", count=400)
+    df = get_ohlcv("KRW-BTC", interval="minute1", count=4)
     print(len(df))
     # print(get_ohlcv("KRW-BTC", interval="minute1", to=df.index[0]))
 
