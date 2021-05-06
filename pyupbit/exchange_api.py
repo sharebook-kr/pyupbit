@@ -372,7 +372,7 @@ class Upbit:
             else :
 
                 url = "https://api.upbit.com/v1/orders"
-                data = {'market': ticker,
+                data = {'market': ticker_or_uuid,
                         'state': state,
                         'kind': kind,
                         'order_by': 'desc'
@@ -495,10 +495,10 @@ if __name__ == "__main__":
     # Exchange API
     #-------------------------------------------------------------------------
     # 자산 - 전체 계좌 조회
-    # balances = upbit.get_balances()
-    # pprint.pprint(balances)
-    order = upbit.get_order('50e184b3-9b4f-4bb0-9c03-30318e3ff10a')
-    print(order)
+    balances = upbit.get_order("KRW-XRP")
+    pprint.pprint(balances)
+    # order = upbit.get_order('50e184b3-9b4f-4bb0-9c03-30318e3ff10a')
+    # print(order)
     # # 원화 잔고 조회
     # print(upbit.get_balance(ticker="KRW"))          # 보유 KRW
     # print(upbit.get_amount('ALL'))                  # 총매수금액

@@ -4,8 +4,7 @@ install_requires = [
    'pyjwt>=2.0.0',
    'pandas',
    'requests',
-   'websockets',
-   're'
+   'websockets'
 ]
 
 with open("README.md", "r", encoding='UTF-8') as fh:
@@ -13,7 +12,7 @@ with open("README.md", "r", encoding='UTF-8') as fh:
 
 setuptools.setup(
     name='pyupbit',
-    version='0.2.15',
+    version='0.2.17',
     author='Jonghun Yoo, Brayden Jo',
     author_email='brayden.jo@outlook.com, jonghun.yoo@outlook.com, pyquant@outlook.com',
     description='python wrapper for Upbit API',
