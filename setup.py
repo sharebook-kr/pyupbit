@@ -12,7 +12,7 @@ with open("README.md", "r", encoding='UTF-8') as fh:
 
 setuptools.setup(
     name='pyupbit',
-    version='0.2.17',
+    version='0.2.19',
     author='Jonghun Yoo, Brayden Jo',
     author_email='brayden.jo@outlook.com, jonghun.yoo@outlook.com, pyquant@outlook.com',
     description='python wrapper for Upbit API',

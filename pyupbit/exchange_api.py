@@ -24,9 +24,9 @@ def get_tick_size(price):
     elif price >= 100:
         tick_size = round(price / 1) * 1
     elif price >= 10:
-        tick_size = round(price / 0.1) * 0.1
+        tick_size = round(price / 0.1) / 10
     else:
-        tick_size = round(price / 0.01) * 0.01
+        tick_size = round(price / 0.01) / 100
     return tick_size
 
 
@@ -497,6 +497,7 @@ if __name__ == "__main__":
     # 자산 - 전체 계좌 조회
     balances = upbit.get_order("KRW-XRP")
     pprint.pprint(balances)
+
     # order = upbit.get_order('50e184b3-9b4f-4bb0-9c03-30318e3ff10a')
     # print(order)
     # # 원화 잔고 조회
