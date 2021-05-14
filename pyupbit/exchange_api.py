@@ -43,7 +43,7 @@ class Upbit:
 
         if query is not None:
             m = hashlib.sha512()
-            m.update(urlencode(query).encode())
+            m.update(urlencode(query, doseq=True).replace("%5B%5D=", "[]=").encode())
             query_hash = m.hexdigest()
             payload['query_hash'] = query_hash
             payload['query_hash_alg'] = "SHA512"
