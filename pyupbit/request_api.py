@@ -1,115 +1,83 @@
 import re
 import requests
-
-getframe_expr = 'sys._getframe({}).f_code.co_name'
+from pyupbit.errors import (UpbitError, 
+                           TooManyRequests, 
+                           raise_error, 
+                           RemainingReqParsingError)
 
 
 def _parse_remaining_req(remaining_req):
-    """
+    """parse the request limit data of the Upbit API
 
-    :param remaining_req:
-    :return:
+    Args:
+        remaining_req (str): "group=market; min=573; sec=9" 
+
+    Returns:
+        dict: {'group': 'market', 'min': 573, 'sec': 2}
     """
     try:
         p = re.compile("group=([a-z]+); min=([0-9]+); sec=([0-9]+)")
         m = p.search(remaining_req)
-        return m.group(1), int(m.group(2)), int(m.group(3))
+        ret = {
+            'group': m.group(1),
+            'min': int(m.group(2)),
+            'sec': int(m.group(3))
+        }
+        return ret
     except:
-        return None, None, None
+        raise RemainingReqParsingError
 
 
-def _call_public_api(url, **kwargs):
+def _call_public_api(url, **params):
+    """call get type api
+
+    Args:
+        url (str): REST API url 
+
+    Returns:
+        tuple: (data, req_limit_info) 
     """
-
-    :param url:
-    :param kwargs:
-    :return:
-    """
-    try:
-        resp = requests.get(url, params=kwargs)
-        remaining_req_dict = {}
+    resp = requests.get(url, params=params)
+    if resp.status_code == 200:
         remaining_req = resp.headers.get('Remaining-Req')
-        if remaining_req is not None:
-            group, min, sec = _parse_remaining_req(remaining_req)
-            remaining_req_dict['group'] = group
-            remaining_req_dict['min'] = min
-            remaining_req_dict['sec'] = sec
-        contents = resp.json()
-        return contents, remaining_req_dict
-    except Exception as x:
-        print("It failed", x.__class__.__name__)
-        return None
+        limit = _parse_remaining_req(remaining_req)
+        data = resp.json()
+        return data, limit
+    else:
+        raise_error(resp.status_code)
 
 
 def _send_post_request(url, headers=None, data=None):
-    """
-
-    :param url:
-    :param headers:
-    :param data:
-    :return:
-    """
-    try:
-        resp = requests.post(url, headers=headers, data=data)
-        remaining_req_dict = {}
+    resp = requests.post(url, headers=headers, data=data)
+    if resp.status_code == 200:
         remaining_req = resp.headers.get('Remaining-Req')
-        if remaining_req is not None:
-            group, min, sec = _parse_remaining_req(remaining_req)
-            remaining_req_dict['group'] = group
-            remaining_req_dict['min'] = min
-            remaining_req_dict['sec'] = sec
+        limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
-        return contents, remaining_req_dict
-    except Exception as x:
-        print("send post request failed", x.__class__.__name__)
-        print("caller: ", eval(getframe_expr.format(2)))
-        return None
+        return contents,limit 
+    else:
+        raise_error(resp.status_code)
 
 
 def _send_get_request(url, headers=None, data=None):
-    """
-
-    :param url:
-    :param headers:
-    :return:
-    """
-    try:
-        resp = requests.get(url, headers=headers, data=data)
-        remaining_req_dict = {}
+    resp = requests.get(url, headers=headers, data=data)
+    print(resp.url)
+    print(resp.status_code)
+    print(resp.reason)
+    if resp.status_code == 200:
         remaining_req = resp.headers.get('Remaining-Req')
-        if remaining_req is not None:
-            group, min, sec = _parse_remaining_req(remaining_req)
-            remaining_req_dict['group'] = group
-            remaining_req_dict['min'] = min
-            remaining_req_dict['sec'] = sec
+        limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
-        return contents, remaining_req_dict
-    except Exception as x:
-        print("send get request failed", x.__class__.__name__)
-        print("caller: ", eval(getframe_expr.format(2)))
-        return None
+        return contents, limit 
+    else: 
+        raise_error(resp.status_code)
 
 
 def _send_delete_request(url, headers=None, data=None):
-    """
-
-    :param url:
-    :param headers:
-    :param data:
-    :return:
-    """
-    try:
-        resp = requests.delete(url, headers=headers, data=data)
-        remaining_req_dict = {}
+    resp = requests.delete(url, headers=headers, data=data)
+    if resp.status_code == 200:
         remaining_req = resp.headers.get('Remaining-Req')
-        if remaining_req is not None:
-            group, min, sec = _parse_remaining_req(remaining_req)
-            remaining_req_dict['group'] = group
-            remaining_req_dict['min'] = min
-            remaining_req_dict['sec'] = sec
+        limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
-        return contents, remaining_req_dict
-    except Exception as x:
-        print("send delete request failed", x.__class__.__name__)
-        print("caller: ", eval(getframe_expr.format(2)))
-        return None
+        return contents,limit 
+    else:
+        raise_error(resp.status_code)
