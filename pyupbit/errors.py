@@ -78,6 +78,11 @@ class TooManyRequests(UpbitError):
         return "요청 수 제한을 초과했습니다."
 
 
+class RemainingReqParsingError(UpbitError):
+    def __str__(self):
+        return "요청 수 제한 파싱에 실패했습니다."
+
+
 def raise_error(code):
     if code == 429:
         raise TooManyRequests()

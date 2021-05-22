@@ -1,4 +1,11 @@
-# Upbit Quatation (시세 조회) API
+# -*- coding: utf-8 -*-
+
+"""
+pyupbit.quotation_api
+
+This module provides quatation api of the Upbit API.
+"""
+
 import datetime
 import pandas as pd
 import sys
@@ -9,98 +16,41 @@ import requests
 import re
 
 
-def parse_remaining_req(data):
-    """요청 제한 데이터 파싱 함수
+def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):
+    """업비트 티커 조회
 
     Args:
-        data (str): "{'group': 'market', 'min': '573', 'sec': '2'}"
-
-    Returns:
-        dict: {'group': 'market', 'min': 573, 'sec': 2}
-    """
-    p = re.compile("group=([a-z]+); min=([0-9]+); sec=([0-9]+)")
-    m = p.search(data)
-    ret = {
-        'group': m.group(1),
-        'min': int(m.group(2)),
-        'sec': int(m.group(3))
-    }
-    return ret
-
-
-def fetch_market(isDetails=False, limit_info=False):
-    """업비트에서 거래 가능한 마켓 목록
-
-    Args:
-        isDetails (bool, optional): True: 상세조회, False: 비 상세조회. Defaults to False.
+        fiat (str, optional): Fiat (KRW, BTC, USDT). Defaults to empty string.
         limit_info (bool, optional): True: 요청 수 제한 정보 리턴, False: 요청 수 제한 정보 리턴 받지 않음. Defaults to False.
 
     Returns:
-        list, (dict): 마켓 목록 리스트, 요청 제한 정보 딕셔너리
+        tuple/list: limit_info가 True이면 튜플, False이면 리스트 객체  
     """
     url = "https://api.upbit.com/v1/market/all"
+    detail = "true" if is_details else "false"
+    markets, req_limit_info = _call_public_api(url, isDetails=detail)
 
-    if isDetails:
-        query_string = {"isDetails": "true"}
+    if verbose:
+        tickers = [x for x in markets if x['market'].startswith(fiat)]
     else:
-        query_string = {"isDetails": "false"}
-    resp = requests.get(url, params=query_string)
-
-    if resp.status_code == 200:
-        remaining_req = resp.headers.get('Remaining-Req')
-        limit = parse_remaining_req(remaining_req)
-        data = resp.json()
-        if limit_info:
-            return data, limit
-        else:
-            return data
+        tickers = [x['market'] for x in markets if x['market'].startswith(fiat)]
+    
+    if limit_info:
+        return tickers, req_limit_info
     else:
-        raise_error(resp.status_code)
-
-
-def get_tickers(fiat="ALL", limit_info=False):
-    """
-    마켓 코드 조회 (업비트에서 거래 가능한 마켓 목록 조회)
-    :param fiat: "ALL", "KRW", "BTC", "USDT"
-    :param limit_info: 요청수 제한 리턴
-    :return:
-    """
-    try:
-        url = "https://api.upbit.com/v1/market/all"
-
-        # call REST API
-        ret = _call_public_api(url)
-        if isinstance(ret, tuple):
-            contents, req_limit_info = ret
-        else:
-            contents = None
-            req_limit_info = None
-
-        tickers = None
-        if isinstance(contents, list):
-            markets = [x['market'] for x in contents]
-
-            if fiat != "ALL":
-                tickers = [x for x in markets if x.startswith(fiat)]
-            else:
-                tickers = markets
-
-        if limit_info is False:
-            return tickers
-        else:
-            return tickers, req_limit_info
-
-    except Exception as x:
-        print(x.__class__.__name__)
-        return None
+        return tickers
 
 
 def get_url_ohlcv(interval):
+    """ohlcv 요청을 위한 url을 리턴하는 함수 
+
+    Args:
+        interval (str): "day", "minute1", "minute3", "minute5", "week", "month"
+
+    Returns:
+        str: upbit api url 
     """
-    candle에 대한 요청 주소를 얻는 함수
-    :param interval: day(일봉), minute(분봉), week(주봉), 월봉(month)
-    :return: candle 조회에 사용되는 url
-    """
+
     if interval in ["day", "days"]:
         url = "https://api.upbit.com/v1/candles/days"
     elif interval in ["minute1", "minutes1"]:
@@ -130,10 +80,6 @@ def get_url_ohlcv(interval):
 
 
 def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
-    """
-    캔들 조회
-    :return:
-    """
     MAX_CALL_COUNT = 200
     try:
         url = get_url_ohlcv(interval=interval)
@@ -155,11 +101,17 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
             to = to.astimezone(datetime.timezone.utc)
             to = to.strftime("%Y-%m-%d %H:%M:%S")
 
-            contents = _call_public_api(url, market=ticker, count=query_count, to=to)[0]
+            contents, req_limit_info = _call_public_api(url, market=ticker, count=query_count, to=to)
             dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
-            df = pd.DataFrame(contents, columns=['opening_price', 'high_price', 'low_price', 'trade_price',
-                                                'candle_acc_trade_volume', 'candle_acc_trade_price'],
-                            index=dt_list)
+            df = pd.DataFrame(contents, 
+                              columns=[
+                                  'opening_price', 
+                                  'high_price', 
+                                  'low_price', 
+                                  'trade_price',
+                                  'candle_acc_trade_volume', 
+                                  'candle_acc_trade_price'],
+                              index=dt_list)
             df = df.sort_index()
             if df.shape[0] == 0:
                 break
@@ -171,12 +123,14 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
                 time.sleep(period)
 
         df = pd.concat(dfs).sort_index()
-        df = df.rename(
-            columns={"opening_price": "open", "high_price": "high", "low_price": "low", "trade_price": "close",
-                     "candle_acc_trade_volume": "volume", "candle_acc_trade_price": "value"})
+        df = df.rename(columns={"opening_price": "open", 
+                                "high_price": "high", 
+                                "low_price": "low", 
+                                "trade_price": "close",
+                                "candle_acc_trade_volume": "volume", 
+                                "candle_acc_trade_price": "value"})
         return df
     except Exception as x:
-        print(x.__class__.__name__)
         return None
 
 
@@ -193,65 +147,78 @@ def get_daily_ohlcv_from_base(ticker="KRW-BTC", base=0):
             {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
         return df
     except Exception as x:
-        print(x.__class__.__name__)
         return None
 
 
-def get_current_price(ticker="KRW-BTC"):
-    """
-    최종 체결 가격 조회 (현재가)
-    :param ticker:
-    :return:
-    """
-    try:
-        url = "https://api.upbit.com/v1/ticker"
-        contents = _call_public_api(url, markets=ticker)[0]
-        if not contents:
-            return None
+def get_current_price(ticker="KRW-BTC", limit_info=False, verbose=False):
+    """현재가 정보 조회
 
-        if isinstance(ticker, list):
-            ret = {}
-            for content in contents:
-                market = content['market']
-                price = content['trade_price']
-                ret[market] = price
-            return ret
+    Args:
+        ticker (str/list, optional): 단일 티커 또는 티커 리스트 Defaults to "KRW-BTC".
+        limit_info (bool, optional): True: 요청 제한 정보 리턴. Defaults to False.
+        verbose (bool, optional): True: 원본 API 파라미터 리턴. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """
+    url = "https://api.upbit.com/v1/ticker"
+    data, req_limit_info = _call_public_api(url, markets=ticker)
+
+    if isinstance(ticker, str) or (isinstance(ticker, list) and len(ticker)==1):
+        # 단일 티커 
+        if verbose is False:
+            price = data[0]['trade_price']
         else:
-            return contents[0]['trade_price']
-    except Exception as x:
-        print(x.__class__.__name__)
+            price = data[0]
+    else:
+        # 여러 티커로 조회한 경우 
+        if verbose is False:
+            price = {x['market']: x['trade_price'] for x in data}
+        else:
+            price = data
+
+    if limit_info:
+        return price, req_limit_info
+    else:
+        return price
 
 
-def get_orderbook(tickers="KRW-BTC"):
-    '''
-    호가 정보 조회
-    :param tickers: 티커 목록을 문자열
-    :return:
-    '''
-    try:
-        url = "https://api.upbit.com/v1/orderbook"
-        contents = _call_public_api(url, markets=tickers)[0]
-        return contents
-    except Exception as x:
-        print(x.__class__.__name__)
-        return None
+def get_orderbook(ticker="KRW-BTC", limit_info=False):
+    """호가 정보 조회
+
+    Args:
+        ticker (str/list, optional): 티커 또는 티커 리스트. Defaults to "KRW-BTC".
+        limit_info (bool, optional): True: 요청 수 제한 정보 리턴, False: 요청 수 제한 정보 리턴 받지 않음. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """
+    url = "https://api.upbit.com/v1/orderbook"
+    orderbook, req_limit_info = _call_public_api(url, markets=ticker)
+
+    if isinstance(ticker, str) or (isinstance(ticker, list) and len(ticker)==1):
+        orderbook = orderbook[0]
+    
+    if limit_info:
+        return orderbook, req_limit_info
+    else:
+        return orderbook
+
 
 
 if __name__ == "__main__":
-    # try:
-    #     for i in range(20):
-    #         market_all, limit = fetch_market(isDetails=True, limit_info=True)
-    # except TooManyRequests as e:
-    #     print(e)
-    # except UpbitError as e:
-    #     print(e)
-
+    import pprint
 
     # 모든 티커 목록 조회
-    all_tickers = get_tickers()
-    print(all_tickers)
+    #all_tickers = get_tickers()
+    #print(len(all_tickers))
+    
+    #all_tickers = get_tickers(fiat="KRW")
+    #print(len(all_tickers))
 
-    # 특정 시장의 티커 목록 조회
+    #all_tickers = get_tickers(fiat="KRW", verbose=True)
+    #print(all_tickers)
+
     # krw_tickers = get_tickers(fiat="KRW")
     # print(krw_tickers, len(krw_tickers))
 
@@ -270,8 +237,8 @@ if __name__ == "__main__":
     # print(get_tickers(fiat="USDT"))
 
     #------------------------------------------------------
-    # print(get_ohlcv("KRW-BTC"))
-    # print(get_ohlcv("KRW-BTC", interval="day", count=5))
+    print(get_ohlcv("KRW-BTC"))
+    print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
 
     # to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
@@ -285,10 +252,10 @@ if __name__ == "__main__":
     # time stamp Test
     # df = get_ohlcv("KRW-BTC", interval="minute1")
     # print(df)
-    df = get_ohlcv("KRW-BTC", interval="minute1", count=401)
-    df = get_ohlcv("KRW-BTC", interval="minute1", count=400)
-    df = get_ohlcv("KRW-BTC", interval="minute1", count=4)
-    print(len(df))
+    # df = get_ohlcv("KRW-BTC", interval="minute1", count=401)
+    # df = get_ohlcv("KRW-BTC", interval="minute1", count=400)
+    # df = get_ohlcv("KRW-BTC", interval="minute1", count=4)
+    # print(len(df))
     # print(get_ohlcv("KRW-BTC", interval="minute1", to=df.index[0]))
 
     # # DateTime Test
@@ -320,8 +287,28 @@ if __name__ == "__main__":
     # print(prices2)
 
 
-    # print(get_current_price("KRW-BTC"))
+    #price = get_current_price("KRW-BTC")
+    #print(price)
+    price, limit = get_current_price("KRW-BTC", limit_info=True)
+    #print(price, limit)
+    #price = get_current_price(["KRW-BTC", "KRW-XRP"])
+    #print(price)
+    #price, limit = get_current_price(["KRW-BTC", "KRW-XRP"], limit_info=True)
+    #print(price, limit)
+    #price = get_current_price("KRW-BTC", verbose=True)
+    #print(price)
+    #price = get_current_price(["KRW-BTC", "KRW-XRP"], verbose=True)
+    #print(price)
+
     # print(get_current_price(["KRW-BTC", "KRW-XRP"]))
 
-    # print(get_orderbook(tickers=["KRW-BTC"]))
-    # print(get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
+    # orderbook
+    #orderbook = get_orderbook(ticker="KRW-BTC")
+    #print(orderbook)
+
+    #orderbook, req_limit_info = get_orderbook(ticker="KRW-BTC", limit_info=True)
+    #print(orderbook, req_limit_info)
+
+    #orderbook = get_orderbook(tickers=["KRW-BTC", "KRW-XRP"])
+    #for ob in orderbook:
+    #    print(ob)
