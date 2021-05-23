@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+
+"""
+pyupbit.exchange_api
+
+This module provides exchange api of the Upbit API.
+"""
+
+import math
 import jwt          # PyJWT
 import re
 import uuid
@@ -6,27 +15,43 @@ from urllib.parse import urlencode
 from pyupbit.request_api import _send_get_request, _send_post_request, _send_delete_request
 
 
-# 원화 마켓 주문 가격 단위
-# https://docs.upbit.com/docs/market-info-trade-price-detail
-def get_tick_size(price):
-    if price >= 2000000:
-        tick_size = round(price / 1000) * 1000
-    elif price >= 1000000:
-        tick_size = round(price / 500) * 500
-    elif price >= 500000:
-        tick_size = round(price / 100) * 100
-    elif price >= 100000:
-        tick_size = round(price / 50) * 50
-    elif price >= 10000:
-        tick_size = round(price / 10) * 10
-    elif price >= 1000:
-        tick_size = round(price / 5) * 5
-    elif price >= 100:
-        tick_size = round(price / 1) * 1
-    elif price >= 10:
-        tick_size = round(price / 0.1) / 10
+def get_tick_size(price, method="floor"):
+    """원화마켓 주문 가격 단위 
+
+    Args:
+        price (float]): 주문 가격 
+        method (str, optional): 주문 가격 계산 방식. Defaults to "floor".
+
+    Returns:
+        float: 업비트 원화 마켓 주문 가격 단위로 조정된 가격 
+    """
+
+    if method == "floor":
+        func = math.floor
+    elif method == "round":
+        func = round 
     else:
-        tick_size = round(price / 0.01) / 100
+        func = math.ceil 
+
+    if price >= 2000000:
+        tick_size = func(price / 1000) * 1000
+    elif price >= 1000000:
+        tick_size = func(price / 500) * 500
+    elif price >= 500000:
+        tick_size = func(price / 100) * 100
+    elif price >= 100000:
+        tick_size = func(price / 50) * 50
+    elif price >= 10000:
+        tick_size = func(price / 10) * 10
+    elif price >= 1000:
+        tick_size = func(price / 5) * 5
+    elif price >= 100:
+        tick_size = func(price / 1) * 1
+    elif price >= 10:
+        tick_size = func(price / 0.1) / 10
+    else:
+        tick_size = func(price / 0.01) / 100
+
     return tick_size
 
 
