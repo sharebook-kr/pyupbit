@@ -1,3 +1,6 @@
+import json 
+
+
 class UpbitError(Exception):
     def __str__(self):
         return "Upbit Base Error"
@@ -50,7 +53,7 @@ class InvalidQueryPayload(UpbitError):
 
 class JwtVerification(UpbitError):
     def __str__(self):
-        return "JWT 헤더 검증에 실패했습니다."
+        return "JWT 토큰 검증에 실패했습니다."
 
 
 class ExpiredAccessKey(UpbitError):
@@ -83,8 +86,27 @@ class RemainingReqParsingError(UpbitError):
         return "요청 수 제한 파싱에 실패했습니다."
 
 
-def raise_error(code):
+class InValidAccessKey(UpbitError):
+    def __str__(self):
+        return "잘못된 엑세스 키입니다."
+
+
+def raise_error(resp):
+    error = json.loads(resp.text).get('error')
+    message = error.get('message')
+    name = error.get('name')
+    code = resp.status_code
+
+    print(code)
+    print(message)
+    print(name)
+
     if code == 429:
         raise TooManyRequests()
+    elif code == 401:
+        if name == "jwt_verification":
+            raise JwtVerification()
+        elif name == "invalid_access_key":
+            raise InValidAccessKey()
     else:
         raise UpbitError()

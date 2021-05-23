@@ -1,5 +1,6 @@
 import re
 import requests
+import json
 from pyupbit.errors import (UpbitError, 
                            TooManyRequests, 
                            raise_error, 
@@ -19,7 +20,7 @@ def _parse_remaining_req(remaining_req):
         dict: {'group': 'market', 'min': 573, 'sec': 2}
     """
     try:
-        p = re.compile("group=([a-z]+); min=([0-9]+); sec=([0-9]+)")
+        p = re.compile(r"group=([a-z\-]+); min=([0-9]+); sec=([0-9]+)")
         m = p.search(remaining_req)
         ret = {
             'group': m.group(1),
@@ -47,7 +48,7 @@ def _call_public_api(url, **params):
         data = resp.json()
         return data, limit
     else:
-        raise_error(resp.status_code)
+        raise_error(resp)
 
 
 def _send_post_request(url, headers=None, data=None):
@@ -58,7 +59,7 @@ def _send_post_request(url, headers=None, data=None):
         contents = resp.json()
         return contents,limit 
     else:
-        raise_error(resp.status_code)
+        raise_error(resp)
 
 
 def _send_get_request(url, headers=None, data=None):
@@ -69,7 +70,7 @@ def _send_get_request(url, headers=None, data=None):
         contents = resp.json()
         return contents, limit 
     else: 
-        raise_error(resp.status_code)
+        raise_error(resp)
 
 
 def _send_delete_request(url, headers=None, data=None):
@@ -80,4 +81,4 @@ def _send_delete_request(url, headers=None, data=None):
         contents = resp.json()
         return contents,limit 
     else:
-        raise_error(resp.status_code)
+        raise_error(resp)

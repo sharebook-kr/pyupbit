@@ -60,6 +60,7 @@ class Upbit:
         self.access = access
         self.secret = secret
 
+
     def _request_headers(self, query=None):
         payload = {
             "access_key": self.access,
@@ -79,7 +80,11 @@ class Upbit:
         headers = {"Authorization": authorization_token}
         return headers
 
-    # region balance
+
+    #--------------------------------------------------------------------------
+    # 자산 
+    #--------------------------------------------------------------------------
+    #     전체 계좌 조회
     def get_balances(self, contain_req=False):
         """
         전체 계좌 조회
@@ -87,17 +92,14 @@ class Upbit:
         :return: 내가 보유한 자산 리스트
         [contain_req == True 일 경우 Remaining-Req가 포함]
         """
-        try:
-            url = "https://api.upbit.com/v1/accounts"
-            headers = self._request_headers()
-            result = _send_get_request(url, headers=headers)
-            if contain_req:
-                return result
-            else:
-                return result[0]
-        except Exception as x:
-            print(x.__class__.__name__)
-            return None
+        url = "https://api.upbit.com/v1/accounts"
+        headers = self._request_headers()
+        result = _send_get_request(url, headers=headers)
+        if contain_req:
+            return result
+        else:
+            return result[0]
+
 
     def get_balance(self, ticker="KRW", contain_req=False):
         """
@@ -229,7 +231,11 @@ class Upbit:
 
     # endregion balance
 
-    # region chance
+
+    #--------------------------------------------------------------------------
+    # 주문 
+    #--------------------------------------------------------------------------
+    #     주문 가능 정보
     def get_chance(self, ticker, contain_req=False):
         """
         마켓별 주문 가능 정보를 확인.
@@ -250,10 +256,93 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
+    
 
-    # endregion chance
+    #    개별 주문 조회 
+    def get_order(self, ticker_or_uuid, state='wait', kind='normal', contain_req=False):
+        """
+        주문 리스트 조회
+        :param ticker: market
+        :param state: 주문 상태(wait, done, cancel)
+        :param kind: 주문 유형(normal, watch)
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        # TODO : states, identifiers 관련 기능 추가 필요
+        try:
+            p = re.compile(r"^\w+-\w+-\w+-\w+-\w+$")
+            # 정확히는 입력을 대문자로 변환 후 다음 정규식을 적용해야 함
+            # - r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"
+            is_uuid = len(p.findall(ticker_or_uuid)) > 0
+            if is_uuid:
+                url = "https://api.upbit.com/v1/order"
+                data = {'uuid': ticker_or_uuid}
+                headers = self._request_headers(data)
+                result = _send_get_request(url, headers=headers, data=data)
+            else :
 
-    # region order
+                url = "https://api.upbit.com/v1/orders"
+                data = {'market': ticker_or_uuid,
+                        'state': state,
+                        'kind': kind,
+                        'order_by': 'desc'
+                        }
+                headers = self._request_headers(data)
+                result = _send_get_request(url, headers=headers, data=data)
+
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+
+    def get_individual_order(self, uuid, contain_req=False):
+        """
+        주문 리스트 조회
+        :param uuid: 주문 id
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        # TODO : states, uuids, identifiers 관련 기능 추가 필요
+        try:
+            url = "https://api.upbit.com/v1/order"
+            data = {'uuid': uuid}
+            headers = self._request_headers(data)
+            result = _send_get_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+    #    주문 취소 접수
+    def cancel_order(self, uuid, contain_req=False):
+        """
+        주문 취소
+        :param uuid: 주문 함수의 리턴 값중 uuid
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com/v1/order"
+            data = {"uuid": uuid}
+            headers = self._request_headers(data)
+            result = _send_delete_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+
+    #     주문 
     def buy_limit_order(self, ticker, price, volume, contain_req=False):
         """
         지정가 매수
@@ -354,76 +443,23 @@ class Upbit:
             print(x.__class__.__name__)
             return None
 
-    def cancel_order(self, uuid, contain_req=False):
+
+    #--------------------------------------------------------------------------
+    # 출금
+    #--------------------------------------------------------------------------
+    #     개별 출금 조회
+    def get_individual_withdraw_order(self, uuid: str, currency: str, contain_req=False):
         """
-        주문 취소
-        :param uuid: 주문 함수의 리턴 값중 uuid
+        현금 출금
+        :param uuid: 출금 UUID
+        :param txid: 출금 TXID
+        :param currency: Currency 코드
         :param contain_req: Remaining-Req 포함여부
         :return:
         """
         try:
-            url = "https://api.upbit.com/v1/order"
-            data = {"uuid": uuid}
-            headers = self._request_headers(data)
-            result = _send_delete_request(url, headers=headers, data=data)
-            if contain_req:
-                return result
-            else:
-                return result[0]
-        except Exception as x:
-            print(x.__class__.__name__)
-            return None
-
-    def get_order(self, ticker_or_uuid, state='wait', kind='normal', contain_req=False):
-        """
-        주문 리스트 조회
-        :param ticker: market
-        :param state: 주문 상태(wait, done, cancel)
-        :param kind: 주문 유형(normal, watch)
-        :param contain_req: Remaining-Req 포함여부
-        :return:
-        """
-        # TODO : states, identifiers 관련 기능 추가 필요
-        try:
-            p = re.compile(r"^\w+-\w+-\w+-\w+-\w+$")
-            # 정확히는 입력을 대문자로 변환 후 다음 정규식을 적용해야 함
-            # - r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"
-            is_uuid = len(p.findall(ticker_or_uuid)) > 0
-            if is_uuid:
-                url = "https://api.upbit.com/v1/order"
-                data = {'uuid': ticker_or_uuid}
-                headers = self._request_headers(data)
-                result = _send_get_request(url, headers=headers, data=data)
-            else :
-
-                url = "https://api.upbit.com/v1/orders"
-                data = {'market': ticker_or_uuid,
-                        'state': state,
-                        'kind': kind,
-                        'order_by': 'desc'
-                        }
-                headers = self._request_headers(data)
-                result = _send_get_request(url, headers=headers, data=data)
-
-            if contain_req:
-                return result
-            else:
-                return result[0]
-        except Exception as x:
-            print(x.__class__.__name__)
-            return None
-
-    def get_individual_order(self, uuid, contain_req=False):
-        """
-        주문 리스트 조회
-        :param uuid: 주문 id
-        :param contain_req: Remaining-Req 포함여부
-        :return:
-        """
-        # TODO : states, uuids, identifiers 관련 기능 추가 필요
-        try:
-            url = "https://api.upbit.com/v1/order"
-            data = {'uuid': uuid}
+            url = "https://api.upbit.com/v1/withdraw"
+            data = {"uuid": uuid, "currency": currency}
             headers = self._request_headers(data)
             result = _send_get_request(url, headers=headers, data=data)
             if contain_req:
@@ -433,8 +469,9 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
-    # endregion order
 
+
+    #     코인 출금하기  
     def withdraw_coin(self, currency, amount, address, secondary_address='None', transaction_type='default', contain_req=False):
         """
         코인 출금
@@ -463,6 +500,8 @@ class Upbit:
             print(x.__class__.__name__)
             return None
 
+
+    #     원화 출금하기
     def withdraw_cash(self, amount: str, contain_req=False):
         """
         현금 출금
@@ -483,45 +522,66 @@ class Upbit:
             print(x.__class__.__name__)
             return None
 
-    def get_individual_withdraw_order(self, uuid: str, currency: str, contain_req=False):
-        """
-        현금 출금
-        :param uuid: 출금 UUID
-        :param txid: 출금 TXID
-        :param currency: Currency 코드
-        :param contain_req: Remaining-Req 포함여부
-        :return:
-        """
-        try:
-            url = "https://api.upbit.com/v1/withdraw"
-            data = {"uuid": uuid, "currency": currency}
-            headers = self._request_headers(data)
-            result = _send_get_request(url, headers=headers, data=data)
-            if contain_req:
-                return result
-            else:
-                return result[0]
-        except Exception as x:
-            print(x.__class__.__name__)
-            return None
+
+    #--------------------------------------------------------------------------
+    # 입금 
+    #--------------------------------------------------------------------------
+    #     입금 리스트 조회 
+    #     개별 입금 조회
+    #     입금 주소 생성 요청 
+    #     전체 입금 주소 조회
+    #     개별 입금 주소 조회
+    #     원화 입금하기
+
+
+    #--------------------------------------------------------------------------
+    # 서비스 정보 
+    #--------------------------------------------------------------------------
+    #     입출금 현황 
+    def get_deposit_withdraw_status(self, contain_req=False):
+        url = "https://api.upbit.com/v1/status/wallet"
+        headers = self._request_headers()
+        result = _send_get_request(url, headers=headers)
+        if contain_req:
+            return result
+        else:
+            return result[0]
+
+
+    #     API키 리스트 조회
+    def get_api_key_list(self, contain_req=False):
+        url = "https://api.upbit.com/v1/api_keys"
+        headers = self._request_headers()
+        result = _send_get_request(url, headers=headers)
+        if contain_req:
+            return result
+        else:
+            return result[0]
 
 
 if __name__ == "__main__":
     import pprint
-    with open("조회전용키.txt") as f:
+
+    #-------------------------------------------------------------------------
+    # api key
+    #-------------------------------------------------------------------------
+    with open("upbit.txt") as f:
+    #with open("조회전용키.txt") as f:
         lines = f.readlines()
         access = lines[0].strip()
         secret = lines[1].strip()
 
-    # Exchange API 사용을 위한 객체 생성
     upbit = Upbit(access, secret)
 
+
     #-------------------------------------------------------------------------
-    # Exchange API
-    #-------------------------------------------------------------------------
-    # 자산 - 전체 계좌 조회
-    balances = upbit.get_order("KRW-XRP")
-    pprint.pprint(balances)
+    # 자산 
+    #     전체 계좌 조회 
+    #balance = upbit.get_balances()
+    #pprint.pprint(balance)
+
+    #balances = upbit.get_order("KRW-XRP")
+    #pprint.pprint(balances)
 
     # order = upbit.get_order('50e184b3-9b4f-4bb0-9c03-30318e3ff10a')
     # print(order)
@@ -531,7 +591,12 @@ if __name__ == "__main__":
     # print(upbit.get_balance(ticker="KRW-BTC"))      # 비트코인 보유수량
     # print(upbit.get_balance(ticker="KRW-XRP"))      # 리플 보유수량
 
-    #print(upbit.get_chance('KRW-HBAR'))
+    #-------------------------------------------------------------------------
+    # 주문
+    #     주문 가능 정보 
+    #pprint.pprint(upbit.get_chance('KRW-BTC'))
+
+    #     개별 주문 조회
     #print(upbit.get_order('KRW-BTC'))
 
     # 매도
@@ -548,3 +613,14 @@ if __name__ == "__main__":
 
     # 시장가 매도 테스트
     # upbit.sell_market_order("KRW-XRP", 36)
+
+
+    #-------------------------------------------------------------------------
+    # 서비스 정보
+    #     입출금 현황
+    #resp = upbit.get_deposit_withdraw_status()
+    #pprint.pprint(resp)
+
+    #     API키 리스트 조회
+    resp = upbit.get_api_key_list()
+    print(resp)

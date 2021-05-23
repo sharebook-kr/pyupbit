@@ -23,10 +23,26 @@ EXCHANGE API
 ----------------------
 주문 가능 정보
 ~~~~~~~~~~~~~~~~~~~~~~
+
+마켓별 주문 가능 정보를 확인한다. 
+
 ..  code-block:: python
+
+    import pyupbit 
+
+    access = "access key"  
+    secret = "secret key"
+    upbit = Upbit(access, secret)
+
+    chance = upbit.get_chance("KRW-BTC")
+    print(chance)
+
 
 개별 주문 조회 
 ~~~~~~~~~~~~~~~~~~~~~~
+
+주문 UUID 를 통해 개별 주문건을 조회한다.
+
 ..  code-block:: python
 
 주문 리스트 조회
