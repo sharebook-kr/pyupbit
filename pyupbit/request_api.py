@@ -5,6 +5,9 @@ from pyupbit.errors import (UpbitError,
                            raise_error, 
                            RemainingReqParsingError)
 
+HTTP_RESP_CODE_START = 200
+HTTP_RESP_CODE_END   = 400
+
 
 def _parse_remaining_req(remaining_req):
     """parse the request limit data of the Upbit API
@@ -38,7 +41,7 @@ def _call_public_api(url, **params):
         tuple: (data, req_limit_info) 
     """
     resp = requests.get(url, params=params)
-    if resp.status_code == 200:
+    if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
         remaining_req = resp.headers.get('Remaining-Req')
         limit = _parse_remaining_req(remaining_req)
         data = resp.json()
@@ -49,7 +52,7 @@ def _call_public_api(url, **params):
 
 def _send_post_request(url, headers=None, data=None):
     resp = requests.post(url, headers=headers, data=data)
-    if resp.status_code == 200:
+    if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
         remaining_req = resp.headers.get('Remaining-Req')
         limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
@@ -60,10 +63,7 @@ def _send_post_request(url, headers=None, data=None):
 
 def _send_get_request(url, headers=None, data=None):
     resp = requests.get(url, headers=headers, data=data)
-    print(resp.url)
-    print(resp.status_code)
-    print(resp.reason)
-    if resp.status_code == 200:
+    if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
         remaining_req = resp.headers.get('Remaining-Req')
         limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
@@ -74,7 +74,7 @@ def _send_get_request(url, headers=None, data=None):
 
 def _send_delete_request(url, headers=None, data=None):
     resp = requests.delete(url, headers=headers, data=data)
-    if resp.status_code == 200:
+    if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
         remaining_req = resp.headers.get('Remaining-Req')
         limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
