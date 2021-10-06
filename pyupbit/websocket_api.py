@@ -45,9 +45,12 @@ class WebSocketManager(mp.Process):
             await websocket.send(json.dumps(data))
 
             while self.alive:
-                recv_data = await websocket.recv()
-                recv_data = recv_data.decode('utf8')
-                self.__q.put(json.loads(recv_data))
+                try:
+                    recv_data = await websocket.recv()
+                    recv_data = recv_data.decode('utf8')
+                    self.__q.put(json.loads(recv_data))
+                except websockets.exceptions.ConnectionClosedError:
+                    self.__q.put('ConnectionClosedError')
 
     def run(self):
         self.__aloop = asyncio.get_event_loop()
