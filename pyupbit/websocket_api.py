@@ -41,7 +41,7 @@ class WebSocketManager(mp.Process):
     async def __connect_socket(self):
         uri = "wss://api.upbit.com/websocket/v1"
         async with websockets.connect(uri, ping_interval=60) as websocket:
-            data = [{"ticket": str(uuid.uuid4())[:6]}, {"type": self.type, "codes": self.codes}]
+            data = [{"ticket": str(uuid.uuid4())[:6]}, {"type": self.type, "codes": self.codes, "isOnlyRealtime": True}]
             await websocket.send(json.dumps(data))
 
             while self.alive:
