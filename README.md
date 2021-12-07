@@ -260,7 +260,7 @@ print(upbit.buy_market_order("KRW-XRP", 10000))
 ```
 
 다음은 리플 30개를 시장가 매도합니다. 매도대금이 총 10000원이라면 수수료를 제외한 금액이 입금됩니다. 만약 수수료가 0.05%라면 9995원 받을 수 있습니다.
-```
+```python
 print(upbit.sell_market_order("KRW-XRP", 30))
 ```
 
@@ -273,7 +273,7 @@ upbit.get_order("KRW-LTC")
 ```
 
 미체결 주문이 있다면 리스트로 상세 내역을 반환합니다. 다음은 250000원에 매도(ask) 주문한 LTC이 1개(volume)있다는 의미입니다.
-```python
+```
 [{'uuid': '50e184b3-9b4f-4bb0-9c03-30318e3ff10a',
   'side': 'ask',
   'ord_type': 'limit',
@@ -336,7 +336,7 @@ print(order)
 ```
 
 결과를 참고하면 지정가 매도를 실행했으며 주문은 취소(`cancel`) 됐음을 알 수 있습니다
-```text
+```
 {'uuid': '50e184b3-9b4f-4bb0-9c03-30318e3ff10a', 'side': 'ask', 'ord_type': 'limit', 'price': '250000.0', 'state': 'cancel', 'market': 'KRW-LTC', 'created_at': '2021-03-25T14:10:53+09:00', 'volume': '1.0', 'remaining_volume': '1.0', 'reserved_fee': '0.0', 'remaining_fee': '0.0', 'paid_fee': '0.0', 'locked': '1.0', 'executed_volume': '0.0', 'trades_count': 0, 'trades': []}
 ```
 
