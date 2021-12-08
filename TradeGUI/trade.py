@@ -348,9 +348,9 @@ def show():
                 #계산로직
                 if(coin['stand_price'] <j_res[loop]['high_price']):
                     _gap = j_res[loop]['trade_price'] * 0.9995 - coin['stand_price'] * 1.0005
-                    tics.create_oval(s_count_int - loop + 50 + ((s_count_int - loop - 1) * tw/s_count_int), 50 + (mx_high - coin['stand_price']) * xn_height + 1, s_count_int - loop + 50 + ((s_count_int - loop) * tw/s_count_int), 50 + (mx_high - coin['stand_price']) * xn_height - 1, fill = "black")
+                    tics.create_oval(s_count_int - loop + 50 + ((s_count_int - loop - 1) * tw/s_count_int), 50 + (mx_high - coin['stand_price']) * xn_height + 1, s_count_int - loop + 50 + ((s_count_int - loop + 0) * tw/s_count_int), 50 + (mx_high - coin['stand_price']) * xn_height - 1, fill = "black")
                     _gap_per = _gap / j_res[loop]['trade_price']
-                    amount_sum += _gap_per
+                    amount_sum += _gap_per * amount
             loop-=1
         profitLabel.config(text = "이익 실현율 :\n" + str(amount_sum) + "%", justify=LEFT)
         
@@ -359,11 +359,7 @@ def show():
         #fw.write("{0:}봉 이익 실현율: {1:.3f}%".format(_time_gap, amount_sum))
         #fw.write('\n')
         #fw.close()
-        
-        
-        
-    
-    
+
     win.mainloop()
     
 
