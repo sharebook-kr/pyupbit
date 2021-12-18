@@ -142,7 +142,7 @@ print(pyupbit.get_daily_ohlcv_from_base("KRW-BTC", base=13))
 #### 매수/매도 호가
 `get_orderbook` 함수는 매수/매도 호가 정보를 조회합니다.
 ```python
-print(pyupbit.get_orderbook(tickers="KRW-BTC"))
+print(pyupbit.get_orderbook(ticker="KRW-BTC"))
 ```
 
 리스트 안에 딕셔너리로 호가정보가 들어있습니다.
