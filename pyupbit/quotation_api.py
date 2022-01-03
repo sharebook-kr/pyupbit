@@ -91,14 +91,13 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
         elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
             to = to.to_pydatetime()
 
+        to = to.astimezone(datetime.timezone.utc)
+
         dfs = []
         count = max(count, 1)
         for pos in range(count, 0, -200):
             query_count = min(MAX_CALL_COUNT, pos)
 
-            if to.tzinfo is None:
-                to = to.astimezone()
-            to = to.astimezone(datetime.timezone.utc)
             to = to.strftime("%Y-%m-%d %H:%M:%S")
 
             contents, req_limit_info = _call_public_api(url, market=ticker, count=query_count, to=to)
@@ -117,7 +116,7 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
                 break
             dfs += [df]
 
-            to = df.index[0].to_pydatetime()
+            to = datetime.datetime.strptime(contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
 
             if pos > 200:
                 time.sleep(period)
@@ -237,10 +236,11 @@ if __name__ == "__main__":
     # print(get_tickers(fiat="USDT"))
 
     #------------------------------------------------------
-    print(get_ohlcv("KRW-BTC"))
-    print(get_ohlcv("KRW-BTC", interval="day", count=5))
+    # print(get_ohlcv("KRW-BTC"))
+    # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
-
+    df = get_ohlcv('KRW-XRP', interval='minute5', count=1000) 
+    
     # to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
     # df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)
     # print(df)
@@ -289,7 +289,7 @@ if __name__ == "__main__":
 
     #price = get_current_price("KRW-BTC")
     #print(price)
-    price, limit = get_current_price("KRW-BTC", limit_info=True)
+    # price, limit = get_current_price("KRW-BTC", limit_info=True)
     #print(price, limit)
     #price = get_current_price(["KRW-BTC", "KRW-XRP"])
     #print(price)
