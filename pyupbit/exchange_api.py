@@ -259,11 +259,11 @@ class Upbit:
     
 
     #    개별 주문 조회 
-    def get_order(self, ticker_or_uuid, state='wait', kind='normal', contain_req=False):
+    def get_order(self, ticker_or_uuid, state='wait', page=1, limit=100, contain_req=False):
         """
         주문 리스트 조회
         :param ticker: market
-        :param state: 주문 상태(wait, done, cancel)
+        :param state: 주문 상태(wait, watch, done, cancel)
         :param kind: 주문 유형(normal, watch)
         :param contain_req: Remaining-Req 포함여부
         :return:
@@ -284,7 +284,8 @@ class Upbit:
                 url = "https://api.upbit.com/v1/orders"
                 data = {'market': ticker_or_uuid,
                         'state': state,
-                        'kind': kind,
+                        'page': page,
+                        'limit': limit,
                         'order_by': 'desc'
                         }
                 headers = self._request_headers(data)
