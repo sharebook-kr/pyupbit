@@ -29,6 +29,12 @@ def test_get_ohlcv_defaults():
     assert isinstance(resp, pd.DataFrame)
 
 
+def test_get_ohlcv_from():
+    resp = get_ohlcv_from("KRW-BTC", "minute1", "2022-01-26 14:00:00", "2022-01-26 14:05:00")
+    assert resp.index.size == 5
+    assert isinstance(resp, pd.DataFrame)
+
+
 def test_get_current_price_defaults():
     price = get_current_price("KRW-BTC")
     assert isinstance(price, float)
