@@ -15,7 +15,7 @@ def test_get_tickers_with_fiat():
     for fiat in fiats:
         fiat_tickers  = get_tickers(fiat)
         for ticker in fiat_tickers:
-            assert ticker.startswith(fiat) 
+            assert ticker.startswith(fiat)
 
 
 def test_get_tickers_with_limit_info():

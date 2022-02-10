@@ -24,7 +24,7 @@ def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):
         limit_info (bool, optional): True: 요청 수 제한 정보 리턴, False: 요청 수 제한 정보 리턴 받지 않음. Defaults to False.
 
     Returns:
-        tuple/list: limit_info가 True이면 튜플, False이면 리스트 객체  
+        tuple/list: limit_info가 True이면 튜플, False이면 리스트 객체
     """
     url = "https://api.upbit.com/v1/market/all"
     detail = "true" if is_details else "false"
@@ -34,7 +34,7 @@ def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):
         tickers = [x for x in markets if x['market'].startswith(fiat)]
     else:
         tickers = [x['market'] for x in markets if x['market'].startswith(fiat)]
-    
+
     if limit_info:
         return tickers, req_limit_info
     else:
@@ -42,13 +42,13 @@ def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):
 
 
 def get_url_ohlcv(interval):
-    """ohlcv 요청을 위한 url을 리턴하는 함수 
+    """ohlcv 요청을 위한 url을 리턴하는 함수
 
     Args:
         interval (str): "day", "minute1", "minute3", "minute5", "week", "month"
 
     Returns:
-        str: upbit api url 
+        str: upbit api url
     """
 
     if interval in ["day", "days"]:
@@ -102,13 +102,13 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
 
             contents, req_limit_info = _call_public_api(url, market=ticker, count=query_count, to=to)
             dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
-            df = pd.DataFrame(contents, 
+            df = pd.DataFrame(contents,
                               columns=[
-                                  'opening_price', 
-                                  'high_price', 
-                                  'low_price', 
+                                  'opening_price',
+                                  'high_price',
+                                  'low_price',
                                   'trade_price',
-                                  'candle_acc_trade_volume', 
+                                  'candle_acc_trade_volume',
                                   'candle_acc_trade_price'],
                               index=dt_list)
             df = df.sort_index()
@@ -122,11 +122,11 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
                 time.sleep(period)
 
         df = pd.concat(dfs).sort_index()
-        df = df.rename(columns={"opening_price": "open", 
-                                "high_price": "high", 
-                                "low_price": "low", 
+        df = df.rename(columns={"opening_price": "open",
+                                "high_price": "high",
+                                "low_price": "low",
                                 "trade_price": "close",
-                                "candle_acc_trade_volume": "volume", 
+                                "candle_acc_trade_volume": "volume",
                                 "candle_acc_trade_price": "value"})
         return df
     except Exception as x:
@@ -164,13 +164,13 @@ def get_current_price(ticker="KRW-BTC", limit_info=False, verbose=False):
     data, req_limit_info = _call_public_api(url, markets=ticker)
 
     if isinstance(ticker, str) or (isinstance(ticker, list) and len(ticker)==1):
-        # 단일 티커 
+        # 단일 티커
         if verbose is False:
             price = data[0]['trade_price']
         else:
             price = data[0]
     else:
-        # 여러 티커로 조회한 경우 
+        # 여러 티커로 조회한 경우
         if verbose is False:
             price = {x['market']: x['trade_price'] for x in data}
         else:
@@ -197,7 +197,7 @@ def get_orderbook(ticker="KRW-BTC", limit_info=False):
 
     if isinstance(ticker, str) or (isinstance(ticker, list) and len(ticker)==1):
         orderbook = orderbook[0]
-    
+
     if limit_info:
         return orderbook, req_limit_info
     else:
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     # 모든 티커 목록 조회
     #all_tickers = get_tickers()
     #print(len(all_tickers))
-    
+
     #all_tickers = get_tickers(fiat="KRW")
     #print(len(all_tickers))
 
@@ -239,8 +239,8 @@ if __name__ == "__main__":
     # print(get_ohlcv("KRW-BTC"))
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
-    df = get_ohlcv('KRW-XRP', interval='minute5', count=1000) 
-    
+    df = get_ohlcv('KRW-XRP', interval='minute5', count=1000)
+
     # to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
     # df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)
     # print(df)
