@@ -7,7 +7,7 @@ install_requires = [
    'websockets==9.1'
 ]
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding='UTF-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
