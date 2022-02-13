@@ -52,6 +52,13 @@ def _call_public_api(url, **params):
 
 
 def _send_post_request(url, headers=None, data=None):
+    if isinstance(headers, dict):
+        headers["Accept"] = "application/json"
+        headers["Content-Type"] = "application/json"
+
+    if isinstance(data, dict):
+        data = json.dumps(data)
+
     resp = requests.post(url, headers=headers, data=data)
     if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
         remaining_req = resp.headers.get('Remaining-Req')
