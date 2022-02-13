@@ -81,6 +81,13 @@ def _send_get_request(url, headers=None, data=None):
 
 
 def _send_delete_request(url, headers=None, data=None):
+    if isinstance(headers, dict):
+        headers["Accept"] = "application/json"
+        headers["Content-Type"] = "application/json"
+
+    if isinstance(data, dict):
+        data = json.dumps(data)
+
     resp = requests.delete(url, headers=headers, data=data)
     if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
         remaining_req = resp.headers.get('Remaining-Req')
