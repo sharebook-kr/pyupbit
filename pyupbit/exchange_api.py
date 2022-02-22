@@ -448,12 +448,32 @@ class Upbit:
     #--------------------------------------------------------------------------
     # 출금
     #--------------------------------------------------------------------------
+    def get_withdraw_list(self, currency: str, contain_req=False):
+        """
+        출금 리스트 조회
+        :param currency: Currency 코드
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com/v1/withdraws"
+            data = {"currency": currency}
+            headers = self._request_headers(data)
+
+            result = _send_get_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
     #     개별 출금 조회
     def get_individual_withdraw_order(self, uuid: str, currency: str, contain_req=False):
         """
-        현금 출금
+        개별 출금 조회
         :param uuid: 출금 UUID
-        :param txid: 출금 TXID
         :param currency: Currency 코드
         :param contain_req: Remaining-Req 포함여부
         :return:
@@ -528,6 +548,27 @@ class Upbit:
     # 입금 
     #--------------------------------------------------------------------------
     #     입금 리스트 조회 
+    def get_deposit_list(self, currency: str, contain_req=False):
+        """
+        입금 리스트 조회
+        :currency: Currency 코드
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com//v1/deposits"
+            data = {"currency": currency}
+            headers = self._request_headers(data)
+
+            result = _send_get_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+            
     #     개별 입금 조회
     #     입금 주소 생성 요청 
     #     전체 입금 주소 조회
