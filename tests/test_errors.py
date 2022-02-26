@@ -31,8 +31,10 @@ def test_raise_error_with_bad_requests():
         with pytest.raises(UpbitErrorMixin) as exc:
             raise_error(response)
 
-        assert exc.value.name == response.json()["error"]["name"]
+        error = response.json()["error"]
+        assert exc.value.name == error["name"]
         assert exc.value.code == response.status_code
+        assert exc.value.msg != error["message"]
 
 
 def test_raise_error_with_unauthorized():
@@ -42,7 +44,7 @@ def test_raise_error_with_unauthorized():
         mock.json.return_value = {
             "error": {
                 "name": err_name,
-                "message": "test_bad_requests",
+                "message": "test_unauthorized",
             }
         }
         mock.status_code = 401
@@ -52,8 +54,10 @@ def test_raise_error_with_unauthorized():
         with pytest.raises(UpbitErrorMixin) as exc:
             raise_error(response)
 
-        assert exc.value.name == response.json()["error"]["name"]
+        error = response.json()["error"]
+        assert exc.value.name == error["name"]
         assert exc.value.code == response.status_code
+        assert exc.value.msg != error["message"]
 
 
 def test_raise_error_with_too_many_req():
