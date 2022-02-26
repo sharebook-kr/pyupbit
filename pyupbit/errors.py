@@ -19,7 +19,7 @@ __all__ = [
     "TooManyRequests",
     "RemainingReqParsingError",
     "InValidAccessKey",
-    "raise_error",
+    "raise_error", # raise_error must be in place of last in this list
 ]
 
 
