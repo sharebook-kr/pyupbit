@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 
-class UpbitErrorMixin:
+class UpbitErrorMixin(Exception):
     name: str
     code: int
     msg: str
@@ -35,19 +35,19 @@ class UpbitErrorMixin:
         return self.msg.format(**self.__dict__)
 
 
-class UpbitError(UpbitErrorMixin, Exception):
+class UpbitError(UpbitErrorMixin):
     pass
 
 
-class UpbitBadRequestError(UpbitErrorMixin, Exception):
+class UpbitBadRequestError(UpbitErrorMixin):
     pass
 
 
-class UpbitUnauthorizedError(UpbitErrorMixin, Exception):
+class UpbitUnauthorizedError(UpbitErrorMixin):
     pass
 
 
-class UpbitLimitError(UpbitErrorMixin, Exception):
+class UpbitLimitError(UpbitErrorMixin):
     pass
 
 
@@ -136,7 +136,7 @@ class OutOfScope(UpbitUnauthorizedError):
 
 
 class TooManyRequests(UpbitLimitError):
-    name = ""
+    name = "Too many API requests."
     code = 429
     msg = "요청 수 제한을 초과했습니다."
 
@@ -153,25 +153,32 @@ class InValidAccessKey(UpbitUnauthorizedError):
     msg = "잘못된 엑세스 키입니다."
 
 
-bad_requests = [eval(err) for err in __all__[:-1] if eval(err).code == 400]
-unauthorized = [eval(err) for err in __all__[:-1] if eval(err).code == 401]
+BAD_REQUESTS = [eval(err) for err in __all__[:-1] if eval(err).code == 400]
+UNAUTHORIZED = [eval(err) for err in __all__[:-1] if eval(err).code == 401]
+TOO_MANY_REQ = [eval(err) for err in __all__[:-1] if eval(err).code == 429]
 
 
 def raise_error(resp: Response) -> None:
-    error = resp.json().get("error")
-    message = error.get("message")
-    name = error.get("name")
+    message, name = "", ""
+
+    error = resp.json().get("error", {})
+    if bool(error):
+        message = error.get("message")
+        name = error.get("name")
     code = resp.status_code
 
     if code == 400:
-        for err in bad_requests:
+        for err in BAD_REQUESTS:
             if err.name == name:
                 raise err
     elif code == 401:
-        for err in unauthorized:
+        for err in UNAUTHORIZED:
             if err.name == name:
                 raise err
     elif code == 429:
-        raise TooManyRequests
+        for err in TOO_MANY_REQ:
+            # too_many_request doesn't use json response but text
+            if err.name == resp.text:
+                raise TooManyRequests
     else:
         raise UpbitError(name=name, code=code, msg=message)
