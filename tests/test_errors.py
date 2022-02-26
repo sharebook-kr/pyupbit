@@ -68,5 +68,6 @@ def test_raise_error_with_too_many_req():
         with pytest.raises(UpbitErrorMixin) as exc:
             raise_error(response)
 
+        # too_many_request error doesn't use json response but text
         assert exc.value.name == response.text
         assert exc.value.code == response.status_code
