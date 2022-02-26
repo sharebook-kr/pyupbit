@@ -7,7 +7,7 @@ HTTP_RESP_CODE_START = 200
 HTTP_RESP_CODE_END   = 400
 
 
-def _parse_remaining_req(remaining_req):
+def _parse_remaining_req(remaining_req: Optional[str]) -> Dict[str, Any]:
     """parse the request limit data of the Upbit API
 
     Args:
@@ -36,7 +36,7 @@ def _parse_remaining_req(remaining_req):
 
 
 def _call_public_api(
-    url, **params: Any
+    url: str, **params: Any
 ) -> Optional[Tuple[Any, Dict[str, Any]]]:
     """call get type api
 
@@ -57,7 +57,7 @@ def _call_public_api(
 
 
 def _send_post_request(
-    url,
+    url: str,
     headers: Optional[Dict[str, str]] = None,
     data: Optional[Dict[str, Any]] = None,
 ) -> Optional[Tuple[Any, Dict[str, Any]]]:
@@ -72,7 +72,7 @@ def _send_post_request(
 
 
 def _send_get_request(
-    url,
+    url: str,
     headers: Optional[Dict[str, str]] = None,
     data: Optional[Dict[str, Any]] = None,
 ) -> Optional[Tuple[Any, Dict[str, Any]]]:
@@ -87,7 +87,7 @@ def _send_get_request(
 
 
 def _send_delete_request(
-    url,
+    url: str,
     headers: Optional[Dict[str, str]] = None,
     data: Optional[Dict[str, Any]] = None,
 ) -> Optional[Tuple[Any, Dict[str, Any]]]:
