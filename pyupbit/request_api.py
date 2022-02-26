@@ -7,7 +7,7 @@ HTTP_RESP_CODE_START = 200
 HTTP_RESP_CODE_END   = 400
 
 
-def _parse_remaining_req(remaining_req: Optional[str]) -> Dict[str, Any]:
+def _parse_remaining_req(remaining_req: str) -> Dict[str, Any]:
     """parse the request limit data of the Upbit API
 
     Args:
@@ -17,9 +17,6 @@ def _parse_remaining_req(remaining_req: Optional[str]) -> Dict[str, Any]:
         dict: {'group': 'market', 'min': 573, 'sec': 2}
     """
     try:
-        if remaining_req is None:
-            raise RemainingReqParsingError
-
         pattern = re.compile(r"group=([a-z\-]+); min=([0-9]+); sec=([0-9]+)")
         matched = pattern.search(remaining_req)
         if matched is None:
@@ -48,7 +45,7 @@ def _call_public_api(
     """
     resp = requests.get(url, params=params)
     if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
-        remaining_req = resp.headers.get("Remaining-Req")
+        remaining_req = resp.headers.get("Remaining-Req", "")
         limit = _parse_remaining_req(remaining_req)
         data = resp.json()
         return data, limit
@@ -63,7 +60,7 @@ def _send_post_request(
 ) -> Optional[Tuple[Any, Dict[str, Any]]]:
     resp = requests.post(url, headers=headers, data=data)
     if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
-        remaining_req = resp.headers.get("Remaining-Req")
+        remaining_req = resp.headers.get("Remaining-Req", "")
         limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
         return contents, limit
@@ -78,7 +75,7 @@ def _send_get_request(
 ) -> Optional[Tuple[Any, Dict[str, Any]]]:
     resp = requests.get(url, headers=headers, data=data)
     if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
-        remaining_req = resp.headers.get("Remaining-Req")
+        remaining_req = resp.headers.get("Remaining-Req", "")
         limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
         return contents, limit
@@ -93,7 +90,7 @@ def _send_delete_request(
 ) -> Optional[Tuple[Any, Dict[str, Any]]]:
     resp = requests.delete(url, headers=headers, data=data)
     if HTTP_RESP_CODE_START <= resp.status_code < HTTP_RESP_CODE_END:
-        remaining_req = resp.headers.get("Remaining-Req")
+        remaining_req = resp.headers.get("Remaining-Req", "")
         limit = _parse_remaining_req(remaining_req)
         contents = resp.json()
         return contents, limit
