@@ -8,12 +8,8 @@ This module provides quatation api of the Upbit API.
 
 import datetime
 import pandas as pd
-import sys
 import time
 from pyupbit.request_api import _call_public_api
-from pyupbit.errors import UpbitError, TooManyRequests, raise_error
-import requests
-import re
 
 
 def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):

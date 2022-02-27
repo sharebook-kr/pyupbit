@@ -1,5 +1,5 @@
 from requests import Response
-from typing import Any
+from typing import Dict, Any
 
 __all__ = [
     "CreateAskError",
@@ -19,7 +19,7 @@ __all__ = [
     "TooManyRequests",
     "RemainingReqParsingError",
     "InValidAccessKey",
-    "raise_error", # raise_error must be in place of last in this list
+    "error_handler",  # raise_error must be in place of last in this list
 ]
 
 
@@ -158,27 +158,34 @@ UNAUTHORIZED = [eval(err) for err in __all__[:-1] if eval(err).code == 401]
 TOO_MANY_REQ = [eval(err) for err in __all__[:-1] if eval(err).code == 429]
 
 
-def raise_error(resp: Response) -> None:
-    message, name = "", ""
+def error_handler(func):
+    def wrapper(*args: Any, **kwargs: Dict[str, Any]) -> Response:
+        message, name = "", ""
 
-    error = resp.json().get("error", {})
-    if bool(error):
-        message = error.get("message")
-        name = error.get("name")
-    code = resp.status_code
+        resp = func(*args, **kwargs)
+        code = resp.status_code
+        if 200 <= code < 300:
+            return resp
 
-    if code == 400:
-        for err in BAD_REQUESTS:
-            if err.name == name:
-                raise err
-    elif code == 401:
-        for err in UNAUTHORIZED:
-            if err.name == name:
-                raise err
-    elif code == 429:
-        for err in TOO_MANY_REQ:
-            # too_many_request doesn't use json response but text
-            if err.name == resp.text:
-                raise TooManyRequests
-    else:
-        raise UpbitError(name=name, code=code, msg=message)
+        error = resp.json().get("error", {})
+        if bool(error):
+            message = error.get("message")
+            name = error.get("name")
+
+        if code == 400:
+            for err in BAD_REQUESTS:
+                if err.name == name:
+                    raise err
+        elif code == 401:
+            for err in UNAUTHORIZED:
+                if err.name == name:
+                    raise err
+        elif code == 429:
+            for err in TOO_MANY_REQ:
+                # too_many_request doesn't use json response but text
+                if err.name == resp.text:
+                    raise TooManyRequests
+        else:
+            raise UpbitError(name=name, code=code, msg=message)
+        return resp
+    return wrapper
