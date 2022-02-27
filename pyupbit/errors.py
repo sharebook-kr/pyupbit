@@ -1,5 +1,5 @@
 from requests import Response
-from typing import Dict, Any
+from typing import Dict, Any, Callable
 
 __all__ = [
     "CreateAskError",
@@ -158,13 +158,12 @@ UNAUTHORIZED = [eval(err) for err in __all__[:-1] if eval(err).code == 401]
 TOO_MANY_REQ = [eval(err) for err in __all__[:-1] if eval(err).code == 429]
 
 
-def error_handler(func):
+def error_handler(func: Callable):
     def wrapper(*args: Any, **kwargs: Dict[str, Any]) -> Response:
         message, name = "", ""
 
         resp = func(*args, **kwargs)
-        code = resp.status_code
-        if 200 <= code < 300:
+        if resp.ok:
             return resp
 
         error = resp.json().get("error", {})
@@ -172,6 +171,7 @@ def error_handler(func):
             message = error.get("message")
             name = error.get("name")
 
+        code = resp.status_code
         if code == 400:
             for err in BAD_REQUESTS:
                 if err.name == name:

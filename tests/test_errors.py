@@ -29,6 +29,7 @@ def test_raise_error_with_bad_requests():
             }
         }
         mock.status_code = 400
+        mock.ok = False
         responses.append(mock)
 
     for response in responses:
@@ -56,6 +57,7 @@ def test_raise_error_with_unauthorized():
             }
         }
         mock.status_code = 401
+        mock.ok = False
         responses.append(mock)
 
     for response in responses:
@@ -78,6 +80,7 @@ def test_raise_error_with_too_many_req():
         mock = Mock(spec=Response)
         mock.text = err_name
         mock.status_code = 429
+        mock.ok = False
         responses.append(mock)
 
     for response in responses:
