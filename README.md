@@ -166,9 +166,11 @@ print(pyupbit.get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
 Access Key와 Sercret Key를 사용해서 `Upbit` 객체를 생성합니다. 이는 웹페이지에서 로그인하는 것과 같습니다.
 
 ```python
+import pyupbit
+
 access = "73kVqowGQOGEjdR31221j31j2ifekjkgjekgjekg"          # 본인 값으로 변경
 secret = "egjekgj3iekeEEkej3i3j3iejjwiEejiejeEeijg"          # 본인 값으로 변경
-upbit = Upbit(access, secret)
+upbit = pyupbit.Upbit(access, secret)
 ```
 
 #### 잔고 조회
