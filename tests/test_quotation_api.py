@@ -15,7 +15,7 @@ def test_get_tickers_with_fiat():
     for fiat in fiats:
         fiat_tickers  = get_tickers(fiat)
         for ticker in fiat_tickers:
-            assert ticker.startswith(fiat) 
+            assert ticker.startswith(fiat)
 
 
 def test_get_tickers_with_limit_info():
@@ -26,6 +26,12 @@ def test_get_tickers_with_limit_info():
 
 def test_get_ohlcv_defaults():
     resp = get_ohlcv()
+    assert isinstance(resp, pd.DataFrame)
+
+
+def test_get_ohlcv_from():
+    resp = get_ohlcv_from("KRW-BTC", "minute1", "2022-01-26 14:00:00", "2022-01-26 14:05:00")
+    assert resp.index.size == 5
     assert isinstance(resp, pd.DataFrame)
 
 
