@@ -15,6 +15,10 @@ too_many_req = [err.name for err in TOO_MANY_REQ]
 
 
 def test_raise_error_with_bad_requests():
+    @error_handler
+    def func(resp):
+        return resp
+
     responses = list()
     for err_name in bad_requests:
         mock = Mock(spec=Response)
@@ -25,11 +29,12 @@ def test_raise_error_with_bad_requests():
             }
         }
         mock.status_code = 400
+        mock.ok = False
         responses.append(mock)
 
     for response in responses:
         with pytest.raises(UpbitErrorMixin) as exc:
-            raise_error(response)
+            func(response)
 
         error = response.json()["error"]
         assert exc.value.name == error["name"]
@@ -38,6 +43,10 @@ def test_raise_error_with_bad_requests():
 
 
 def test_raise_error_with_unauthorized():
+    @error_handler
+    def func(resp):
+        return resp
+
     responses = list()
     for err_name in unauthorized:
         mock = Mock(spec=Response)
@@ -48,11 +57,12 @@ def test_raise_error_with_unauthorized():
             }
         }
         mock.status_code = 401
+        mock.ok = False
         responses.append(mock)
 
     for response in responses:
         with pytest.raises(UpbitErrorMixin) as exc:
-            raise_error(response)
+            func(response)
 
         error = response.json()["error"]
         assert exc.value.name == error["name"]
@@ -61,16 +71,21 @@ def test_raise_error_with_unauthorized():
 
 
 def test_raise_error_with_too_many_req():
+    @error_handler
+    def func(resp):
+        return resp
+
     responses = list()
     for err_name in too_many_req:
         mock = Mock(spec=Response)
         mock.text = err_name
         mock.status_code = 429
+        mock.ok = False
         responses.append(mock)
 
     for response in responses:
         with pytest.raises(UpbitErrorMixin) as exc:
-            raise_error(response)
+            func(response)
 
         # too_many_request error doesn't use json response but text
         assert exc.value.name == response.text
