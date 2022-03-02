@@ -125,6 +125,14 @@ print(pyupbit.get_ohlcv("KRW-BTC", to="20201010"))
 print(pyupbit.get_ohlcv("KRW-BTC", interval="minute1", to="20201010"))
 ```
 
+`count`를 `None`으로 설정해두고 `fro` 파라미터를 지정하면 `fro` 시점부터 `to` 파라미터 전 까지의 데이터를 데이터프레임으로 얻을 수 있습니다. 예를 들어 다음 코드는 `2022-01-26 14:00:00 ~ 14:04:59`까지의 데이터를 분봉으로 5개 획득합니다.
+
+```python
+print(pyupbit.get_ohlcv("KRW-BTC", "minute1", count=None, to="2022-01-26 14:05:00", fro="2022-01-26 14:00:00"))
+```
+
+`count`가 `None`일때만 `fro` 파라미터가 사용되며 `count`가 `None`이 아니면 `fro`는 무시됩니다.
+
 ----
 
 기준 시간 단위로 shift된 일봉을 계산할 수도 있습니다.

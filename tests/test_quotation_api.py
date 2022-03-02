@@ -30,7 +30,7 @@ def test_get_ohlcv_defaults():
 
 
 def test_get_ohlcv_from():
-    resp = get_ohlcv_from("KRW-BTC", "minute1", "2022-01-26 14:00:00", "2022-01-26 14:05:00")
+    resp = get_ohlcv("KRW-BTC", "minute1", count=None, to="2022-01-26 14:05:00", fro="2022-01-26 14:00:00")
     assert resp.index.size == 5
     assert isinstance(resp, pd.DataFrame)
 

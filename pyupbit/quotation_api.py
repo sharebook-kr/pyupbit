@@ -79,12 +79,26 @@ def get_url_ohlcv(interval):
     return url
 
 
-def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
+def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1, fro=None):
     MAX_CALL_COUNT = 200
     try:
         url = get_url_ohlcv(interval=interval)
 
-        if to == None:
+        if count is not None:
+            count = max(count, 1)
+            # drop fro argument
+            fro = None
+        elif fro is not None:
+            if isinstance(fro, str):
+                fro = pd.to_datetime(fro).to_pydatetime()
+            elif isinstance(fro, pd._libs.tslibs.timestamps.Timestamp):
+                fro = fro.to_pydatetime()
+            fro = fro.astimezone(datetime.timezone.utc)
+        else:
+            # Well, this exception is consumed in current function
+            raise ValueError("either count or fro must not be None")
+
+        if to is None:
             to = datetime.datetime.now()
         elif isinstance(to, str):
             to = pd.to_datetime(to).to_pydatetime()
@@ -94,76 +108,20 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
         to = to.astimezone(datetime.timezone.utc)
 
         dfs = []
-        count = max(count, 1)
-        for pos in range(count, 0, -200):
-            query_count = min(MAX_CALL_COUNT, pos)
+        while (count is not None and count > 0) or \
+              (fro is not None and to > fro):
+
+            if count is not None:
+                query_count = min(MAX_CALL_COUNT, count)
+            else: # fro is not None
+                query_count = MAX_CALL_COUNT
 
             to = to.strftime("%Y-%m-%d %H:%M:%S")
 
             contents, req_limit_info = _call_public_api(url, market=ticker, count=query_count, to=to)
-            dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
-            df = pd.DataFrame(contents,
-                              columns=[
-                                  'opening_price',
-                                  'high_price',
-                                  'low_price',
-                                  'trade_price',
-                                  'candle_acc_trade_volume',
-                                  'candle_acc_trade_price'],
-                              index=dt_list)
-            df = df.sort_index()
-            if df.shape[0] == 0:
-                break
-            dfs += [df]
-
-            to = datetime.datetime.strptime(contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
-
-            if pos > 200:
-                time.sleep(period)
-
-        df = pd.concat(dfs).sort_index()
-        df = df.rename(columns={"opening_price": "open",
-                                "high_price": "high",
-                                "low_price": "low",
-                                "trade_price": "close",
-                                "candle_acc_trade_volume": "volume",
-                                "candle_acc_trade_price": "value"})
-        return df
-    except Exception as x:
-        return None
-
-
-def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None, to=None, period=0.1):
-    MAX_CALL_COUNT = 200
-    try:
-        url = get_url_ohlcv(interval=interval)
-
-        if fromDatetime is None:
-            fromDatetime = datetime.datetime(2000, 1, 1, 0 ,0, 0)
-        elif isinstance(fromDatetime, str):
-            fromDatetime = pd.to_datetime(fromDatetime).to_pydatetime()
-        elif isinstance(fromDatetime, pd._libs.tslibs.timestamps.Timestamp):
-            fromDatetime = fromDatetime.to_pydatetime()
-        fromDatetime = fromDatetime.astimezone(datetime.timezone.utc)
-
-        if to == None:
-            to = datetime.datetime.now()
-        elif isinstance(to, str):
-            to = pd.to_datetime(to).to_pydatetime()
-        elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
-            to = to.to_pydatetime()
-        to = to.astimezone(datetime.timezone.utc)
-
-        dfs = []
-        while to > fromDatetime:
-            query_count = MAX_CALL_COUNT
-
-            to = to.strftime("%Y-%m-%d %H:%M:%S")
-
-            contents, req_limit_info = _call_public_api(url, market=ticker, count=query_count, to=to)
-            dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S").astimezone() for x in contents]
             # set timezone for time comparison
             # timezone will be removed before DataFrame returned
+            dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S").astimezone() for x in contents]
 
             df = pd.DataFrame(contents,
                               columns=[
@@ -180,14 +138,20 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None, to=None,
             dfs += [df]
 
             to = datetime.datetime.strptime(contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
+            # to compare `fro` and `to`, set timezone
             to = to.replace(tzinfo=datetime.timezone.utc)
-            # to compare fromTs and to, set tzinfo
 
-            if to > fromDatetime:
-                time.sleep(period)
+            if count is not None:
+                count -= 200
+
+            if (count is not None and count > 0) or \
+               (fro is not None and to > fro):
+               time.sleep(period)
 
         df = pd.concat(dfs).sort_index()
-        df = df[ df.index >= fromDatetime ]
+        if fro is not None:
+            df = df[ df.index >= fro ]
+        # drop timezone
         df.index = df.index.tz_localize(None)
         df = df.rename(columns={"opening_price": "open",
                                 "high_price": "high",
