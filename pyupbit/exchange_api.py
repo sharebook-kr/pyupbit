@@ -570,6 +570,28 @@ class Upbit:
             return None
             
     #     개별 입금 조회
+    def get_individual_deposit_order(self, uuid: str, currency: str, contain_req=False):
+        """
+        개별 입금 조회
+        :param uuid: 입금 UUID
+        :param currency: Currency 코드
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com/v1/deposit"
+            data = {"uuid": uuid, "currency": currency}
+            headers = self._request_headers(data)
+            result = _send_get_request(url, headers=headers, data=data)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+
     #     입금 주소 생성 요청 
     #     전체 입금 주소 조회
     #     개별 입금 주소 조회
