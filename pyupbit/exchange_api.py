@@ -101,10 +101,11 @@ class Upbit:
             return result[0]
 
 
-    def get_balance(self, ticker="KRW", contain_req=False):
+    def get_balance(self, ticker="KRW", verbose=False, contain_req=False):
         """
         특정 코인/원화의 잔고를 조회하는 메소드
         :param ticker: 화폐를 의미하는 영문 대문자 코드
+        :param verbose: False: only the balance, True: original dictionary 
         :param contain_req: Remaining-Req 포함여부
         :return: 주문가능 금액/수량 (주문 중 묶여있는 금액/수량 제외)
         [contain_req == True 일 경우 Remaining-Req가 포함]
@@ -112,16 +113,20 @@ class Upbit:
         try:
             # fiat-ticker
             # KRW-BTC
+            fiat = "KRW"
             if '-' in ticker:
-                ticker = ticker.split('-')[1]
+                fiat, ticker = ticker.split('-')
 
             balances, req = self.get_balances(contain_req=True)
 
             # search the current currency
             balance = 0
             for x in balances:
-                if x['currency'] == ticker:
-                    balance = float(x['balance'])
+                if x['currency'] == ticker and x['unit_currency'] == fiat:
+                    if verbose is True:
+                        balance = x 
+                    else:
+                        balance = float(x['balance'])
                     break
 
             if contain_req:
