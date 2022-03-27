@@ -634,13 +634,18 @@ if __name__ == "__main__":
     #-------------------------------------------------------------------------
     # api key
     #-------------------------------------------------------------------------
-    with open("upbit.txt") as f:
-    #with open("조회전용키.txt") as f:
+    with open("../upbit.key") as f:
         lines = f.readlines()
         access = lines[0].strip()
         secret = lines[1].strip()
 
     upbit = Upbit(access, secret)
+    #print(upbit.get_balances())
+    print(upbit.get_balance("KRW-BTC", verbose=True))
+
+    # order 
+    resp = upbit.buy_limit_order("KRW-XRP", 500, 10)
+    print(resp)
 
 
     #-------------------------------------------------------------------------
@@ -691,5 +696,5 @@ if __name__ == "__main__":
     #pprint.pprint(resp)
 
     #     API키 리스트 조회
-    resp = upbit.get_api_key_list()
-    print(resp)
+    #resp = upbit.get_api_key_list()
+    #print(resp)

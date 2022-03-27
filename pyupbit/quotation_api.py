@@ -303,6 +303,7 @@ if __name__ == "__main__":
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
     df = get_ohlcv('KRW-XRP', interval='minute5', count=1000)
+    print(df)
 
     # to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
     # df = get_ohlcv(ticker="KRW-BTC", interval="day", to=to)

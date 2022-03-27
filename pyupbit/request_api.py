@@ -3,6 +3,7 @@ import requests
 from requests import Response
 from typing import Any, Tuple, Dict, Optional
 from .errors import error_handler, RemainingReqParsingError
+import json
 
 HTTP_RESP_CODE_START = 200
 HTTP_RESP_CODE_END = 400
@@ -79,6 +80,13 @@ def _send_post_request(
     Returns:
         The contents of requested url, parsed remaining requests count info
     """
+    if isinstance(headers, dict):
+        headers["Accept"] = "application/json"
+        headers["Content-Type"] = "application/json"
+
+    if isinstance(data, dict):
+        data = json.dumps(data)
+
     resp = _call_post(url, headers=headers, data=data)
     data = resp.json()
     remaining_req = resp.headers.get("Remaining-Req", "")
@@ -86,9 +94,7 @@ def _send_post_request(
     return data, limit
 
 
-def _send_get_request(
-    url: str, headers: Dict[str, str], data: Dict[str, Any]
-) -> Tuple[Any, Dict[str, Any]]:
+def _send_get_request(url, headers, data=None):
     """Call GET method request for Upbit
 
     Args:
@@ -117,6 +123,13 @@ def _send_delete_request(
     Returns:
         The contents of requested url, parsed remaining requests count info
     """
+    if isinstance(headers, dict):
+        headers["Accept"] = "application/json"
+        headers["Content-Type"] = "application/json"
+
+    if isinstance(data, dict):
+        data = json.dumps(data)
+
     resp = _call_delete(url, headers=headers, data=data)
     data = resp.json()
     remaining_req = resp.headers.get("Remaining-Req", "")
