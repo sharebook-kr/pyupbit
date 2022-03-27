@@ -6,3 +6,4 @@ pyupbit.egg-info
 venv/*
 upbit.txt
 build/*
+upbit.key
