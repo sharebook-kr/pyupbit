@@ -10,6 +10,9 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     steps:
+    - uses: szenius/set-timezone@v1.0
+      with:
+        timezoneLinux: "Asia/Seoul"
     - uses: actions/checkout@master
     - name: Set up Python
       uses: actions/setup-python@master
