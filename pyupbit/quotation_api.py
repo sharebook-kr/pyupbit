@@ -373,6 +373,6 @@ if __name__ == "__main__":
     #orderbook, req_limit_info = get_orderbook(ticker="KRW-BTC", limit_info=True)
     #print(orderbook, req_limit_info)
 
-    #orderbook = get_orderbook(tickers=["KRW-BTC", "KRW-XRP"])
+    #orderbook = get_orderbook(ticker=["KRW-BTC", "KRW-XRP"])
     #for ob in orderbook:
     #    print(ob)
