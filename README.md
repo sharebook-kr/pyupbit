@@ -153,9 +153,9 @@ print(pyupbit.get_orderbook(ticker="KRW-BTC"))
 [{'market': 'KRW-BTC', 'timestamp': 1532118943687, 'total_ask_size': 17.08116346, 'total_bid_size': 3.07150192, 'orderbook_units': [{'ask_price': 8390000.0, 'bid_price': 8389000.0, 'ask_size': 3.16057415, 'bid_size': 0.5515136}, {'ask_price': 8392000.0, 'bid_price': 8387000.0, 'ask_size': 0.71247596, 'bid_size': 0.95157819}, {'ask_price': 8393000.0, 'bid_price': 8386000.0, 'ask_size': 3.70536818, 'bid_size': 0.15824907}, {'ask_price': 8398000.0, 'bid_price': 8385000.0, 'ask_size': 0.00481809, 'bid_size': 0.00119147}, {'ask_price': 8399000.0, 'bid_price': 8383000.0, 'ask_size': 1.1228337, 'bid_size': 0.05}, {'ask_price': 8400000.0, 'bid_price': 8380000.0, 'ask_size': 0.48354827, 'bid_size': 0.00613734}, {'ask_price': 8401000.0, 'bid_price': 8375000.0, 'ask_size': 0.00433629, 'bid_size': 0.05}, {'ask_price': 8402000.0, 'bid_price': 8374000.0, 'ask_size': 2.7434153, 'bid_size': 0.32104953}, {'ask_price': 8420000.0, 'bid_price': 8373000.0, 'ask_size': 0.0028, 'bid_size': 0.5010063}, {'ask_price': 8428000.0, 'bid_price': 8370000.0, 'ask_size': 5.14099352, 'bid_size': 0.48077642}]}]
 ```
 
-`tickers` 파라미터에 리스트로 티커를 넣으면, 한 번에 여러 종목의 호가를 조회할 수 있습니다.
+`ticker` 파라미터에 리스트로 티커를 넣으면, 한 번에 여러 종목의 호가를 조회할 수 있습니다.
 ```python
-print(pyupbit.get_orderbook(tickers=["KRW-BTC", "KRW-XRP"]))
+print(pyupbit.get_orderbook(ticker=["KRW-BTC", "KRW-XRP"]))
 ```
 
 
