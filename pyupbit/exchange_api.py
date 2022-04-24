@@ -49,8 +49,12 @@ def get_tick_size(price, method="floor"):
         tick_size = func(price / 1) * 1
     elif price >= 10:
         tick_size = func(price / 0.1) / 10
-    else:
+    elif price >= 1:
         tick_size = func(price / 0.01) / 100
+    elif price >= 0.1:
+        tick_size = func(price / 0.001) / 1000
+    else:
+        tick_size = func(price / 0.0001) / 10000
 
     return tick_size
 
