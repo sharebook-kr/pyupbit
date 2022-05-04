@@ -21,7 +21,8 @@ def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):
 
     Returns:
         tuple/list: limit_info가 True이면 튜플, False이면 리스트 객체
-    """
+    """  # pylint: disable=line-too-long # noqa: E501
+
     url = "https://api.upbit.com/v1/market/all"
     detail = "true" if is_details else "false"
     markets, req_limit_info = _call_public_api(url, isDetails=detail)
@@ -29,7 +30,9 @@ def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):
     if verbose or is_details:
         tickers = [x for x in markets if x['market'].startswith(fiat)]
     else:
-        tickers = [x['market'] for x in markets if x['market'].startswith(fiat)]
+        tickers = [
+            x['market'] for x in markets if x['market'].startswith(fiat)
+        ]
 
     if limit_info:
         return tickers, req_limit_info
@@ -75,12 +78,13 @@ def get_url_ohlcv(interval):
     return url
 
 
-def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
+def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None,
+              period=0.1):
     MAX_CALL_COUNT = 200
     try:
         url = get_url_ohlcv(interval=interval)
 
-        if to == None:
+        if to is None:
             to = datetime.datetime.now()
         elif isinstance(to, str):
             to = pd.to_datetime(to).to_pydatetime()
@@ -96,8 +100,15 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
 
             to = to.strftime("%Y-%m-%d %H:%M:%S")
 
-            contents, req_limit_info = _call_public_api(url, market=ticker, count=query_count, to=to)
-            dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S") for x in contents]
+            contents, _ = _call_public_api(
+                url, market=ticker, count=query_count, to=to)
+
+            dt_list = []
+            for x in contents:
+                dt = datetime.datetime.strptime(
+                    x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S")
+                dt_list.append(dt.astimezone())
+
             df = pd.DataFrame(contents,
                               columns=[
                                   'opening_price',
@@ -112,7 +123,8 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
                 break
             dfs += [df]
 
-            to = datetime.datetime.strptime(contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
+            to = datetime.datetime.strptime(
+                contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
 
             if pos > 200:
                 time.sleep(period)
@@ -125,24 +137,25 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None, period=0.1):
                                 "candle_acc_trade_volume": "volume",
                                 "candle_acc_trade_price": "value"})
         return df
-    except Exception as x:
+    except Exception:
         return None
 
 
-def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None, to=None, period=0.1):
+def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None,
+                   to=None, period=0.1):
     MAX_CALL_COUNT = 200
     try:
         url = get_url_ohlcv(interval=interval)
 
         if fromDatetime is None:
-            fromDatetime = datetime.datetime(2000, 1, 1, 0 ,0, 0)
+            fromDatetime = datetime.datetime(2000, 1, 1, 0, 0, 0)
         elif isinstance(fromDatetime, str):
             fromDatetime = pd.to_datetime(fromDatetime).to_pydatetime()
         elif isinstance(fromDatetime, pd._libs.tslibs.timestamps.Timestamp):
             fromDatetime = fromDatetime.to_pydatetime()
         fromDatetime = fromDatetime.astimezone(datetime.timezone.utc)
 
-        if to == None:
+        if to is None:
             to = datetime.datetime.now()
         elif isinstance(to, str):
             to = pd.to_datetime(to).to_pydatetime()
@@ -156,8 +169,14 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None, to=None,
 
             to = to.strftime("%Y-%m-%d %H:%M:%S")
 
-            contents, req_limit_info = _call_public_api(url, market=ticker, count=query_count, to=to)
-            dt_list = [datetime.datetime.strptime(x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S").astimezone() for x in contents]
+            contents, _ = _call_public_api(
+                url, market=ticker, count=query_count, to=to)
+
+            dt_list = []
+            for x in contents:
+                dt = datetime.datetime.strptime(
+                    x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S")
+                dt_list.append(dt.astimezone())
             # set timezone for time comparison
             # timezone will be removed before DataFrame returned
 
@@ -175,7 +194,8 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None, to=None,
                 break
             dfs += [df]
 
-            to = datetime.datetime.strptime(contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
+            to = datetime.datetime.strptime(
+                contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
             to = to.replace(tzinfo=datetime.timezone.utc)
             # to compare fromTs and to, set tzinfo
 
@@ -183,7 +203,7 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None, to=None,
                 time.sleep(period)
 
         df = pd.concat(dfs).sort_index()
-        df = df[ df.index >= fromDatetime ]
+        df = df[df.index >= fromDatetime]
         df.index = df.index.tz_localize(None)
         df = df.rename(columns={"opening_price": "open",
                                 "high_price": "high",
@@ -192,23 +212,22 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None, to=None,
                                 "candle_acc_trade_volume": "volume",
                                 "candle_acc_trade_price": "value"})
         return df
-    except Exception as x:
+    except Exception:
         return None
 
 
 def get_daily_ohlcv_from_base(ticker="KRW-BTC", base=0):
-    """
-
-    :param ticker:
-    :param base:
-    :return:
-    """
     try:
         df = get_ohlcv(ticker, interval="minute60")
-        df = df.resample('24H', base=base).agg(
-            {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
+        df = df.resample('24H', base=base).agg({
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'volume': 'sum'
+        })
         return df
-    except Exception as x:
+    except Exception:
         return None
 
 
@@ -226,7 +245,8 @@ def get_current_price(ticker="KRW-BTC", limit_info=False, verbose=False):
     url = "https://api.upbit.com/v1/ticker"
     data, req_limit_info = _call_public_api(url, markets=ticker)
 
-    if isinstance(ticker, str) or (isinstance(ticker, list) and len(ticker)==1):
+    if isinstance(ticker, str) or \
+            (isinstance(ticker, list) and len(ticker) == 1):
         # 단일 티커
         if verbose is False:
             price = data[0]['trade_price']
@@ -253,12 +273,17 @@ def get_orderbook(ticker="KRW-BTC", limit_info=False):
         limit_info (bool, optional): True: 요청 수 제한 정보 리턴, False: 요청 수 제한 정보 리턴 받지 않음. Defaults to False.
 
     Returns:
-        [type]: [description]
-    """
+        list :
+
+            [{'market': 'KRW-BTC', 'timestamp': 1532118943687, 'total_ask_size': 17.08116346, 'total_bid_size': 3.07150192, 'orderbook_units': [{'ask_price': 8390000.0, 'bid_price': 8389000.0, 'ask_size': 3.16057415, 'bid_size': 0.5515136}, {'ask_price': 8392000.0, 'bid_price': 8387000.0, 'ask_size': 0.71247596, 'bid_size': 0.95157819}, {'ask_price': 8393000.0, 'bid_price': 8386000.0, 'ask_size': 3.70536818, 'bid_size': 0.15824907}, {'ask_price': 8398000.0, 'bid_price': 8385000.0, 'ask_size': 0.00481809, 'bid_size': 0.00119147}, {'ask_price': 8399000.0, 'bid_price': 8383000.0, 'ask_size': 1.1228337, 'bid_size': 0.05}, {'ask_price': 8400000.0, 'bid_price': 8380000.0, 'ask_size': 0.48354827, 'bid_size': 0.00613734}, {'ask_price': 8401000.0, 'bid_price': 8375000.0, 'ask_size': 0.00433629, 'bid_size': 0.05}, {'ask_price': 8402000.0, 'bid_price': 8374000.0, 'ask_size': 2.7434153, 'bid_size': 0.32104953}, {'ask_price': 8420000.0, 'bid_price': 8373000.0, 'ask_size': 0.0028, 'bid_size': 0.5010063}, {'ask_price': 8428000.0, 'bid_price': 8370000.0, 'ask_size': 5.14099352, 'bid_size': 0.48077642}]}]
+
+    """  # pylint: disable=line-too-long # noqa: E501
+
     url = "https://api.upbit.com/v1/orderbook"
     orderbook, req_limit_info = _call_public_api(url, markets=ticker)
 
-    if isinstance(ticker, str) or (isinstance(ticker, list) and len(ticker)==1):
+    if isinstance(ticker, str) or \
+            (isinstance(ticker, list) and len(ticker) == 1):
         orderbook = orderbook[0]
 
     if limit_info:
@@ -267,38 +292,35 @@ def get_orderbook(ticker="KRW-BTC", limit_info=False):
         return orderbook
 
 
-
 if __name__ == "__main__":
-    import pprint
-
     # 모든 티커 목록 조회
-    #all_tickers = get_tickers()
-    #print(len(all_tickers))
+    # all_tickers = get_tickers()
+    # print(len(all_tickers))
 
-    #all_tickers = get_tickers(fiat="KRW")
-    #print(len(all_tickers))
+    # all_tickers = get_tickers(fiat="KRW")
+    # print(len(all_tickers))
 
-    #all_tickers = get_tickers(fiat="KRW", verbose=True)
-    #print(all_tickers)
+    # all_tickers = get_tickers(fiat="KRW", verbose=True)
+    # print(all_tickers)
 
-    # krw_tickers = get_tickers(fiat="KRW")
-    # print(krw_tickers, len(krw_tickers))
+    #  krw_tickers = get_tickers(fiat="KRW")
+    #  print(krw_tickers, len(krw_tickers))
 
-    #btc_tickers = get_tickers(fiat="BTC")
+    # btc_tickers = get_tickers(fiat="BTC")
     # print(btc_tickers, len(btc_tickers))
 
-    #usdt_tickers = get_tickers(fiat="USDT")
+    # usdt_tickers = get_tickers(fiat="USDT")
     # print(usdt_tickers, len(usdt_tickers))
 
     # 요청 수 제한 얻기
-    #all_tickers, limit_info = get_tickers(limit_info=True)
+    # all_tickers, limit_info = get_tickers(limit_info=True)
     # print(limit_info)
 
     # print(get_tickers(fiat="KRW"))
     # print(get_tickers(fiat="BTC"))
     # print(get_tickers(fiat="USDT"))
 
-    #------------------------------------------------------
+    # ------------------------------------------------------
     # print(get_ohlcv("KRW-BTC"))
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
@@ -337,7 +359,6 @@ if __name__ == "__main__":
     # print(get_daily_ohlcv_from_base("KRW-BTC", base=9))
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
 
-
     # krw_tickers = get_tickers(fiat="KRW")
     # print(len(krw_tickers))
 
@@ -350,29 +371,29 @@ if __name__ == "__main__":
     # print(prices1)
     # print(prices2)
 
-
-    #price = get_current_price("KRW-BTC")
-    #print(price)
+    # price = get_current_price("KRW-BTC")
+    # print(price)
     # price, limit = get_current_price("KRW-BTC", limit_info=True)
-    #print(price, limit)
-    #price = get_current_price(["KRW-BTC", "KRW-XRP"])
-    #print(price)
-    #price, limit = get_current_price(["KRW-BTC", "KRW-XRP"], limit_info=True)
-    #print(price, limit)
-    #price = get_current_price("KRW-BTC", verbose=True)
-    #print(price)
-    #price = get_current_price(["KRW-BTC", "KRW-XRP"], verbose=True)
-    #print(price)
+    # print(price, limit)
+    # price = get_current_price(["KRW-BTC", "KRW-XRP"])
+    # print(price)
+    # price, limit = get_current_price(["KRW-BTC", "KRW-XRP"], limit_info=True)
+    # print(price, limit)
+    # price = get_current_price("KRW-BTC", verbose=True)
+    # print(price)
+    # price = get_current_price(["KRW-BTC", "KRW-XRP"], verbose=True)
+    # print(price)
 
     # print(get_current_price(["KRW-BTC", "KRW-XRP"]))
 
     # orderbook
-    #orderbook = get_orderbook(ticker="KRW-BTC")
-    #print(orderbook)
+    # orderbook = get_orderbook(ticker="KRW-BTC")
+    # print(orderbook)
 
-    #orderbook, req_limit_info = get_orderbook(ticker="KRW-BTC", limit_info=True)
-    #print(orderbook, req_limit_info)
+    # orderbook, req_limit_info = get_orderbook(
+    #     ticker="KRW-BTC", limit_info=True)
+    # print(orderbook, req_limit_info)
 
-    #orderbook = get_orderbook(ticker=["KRW-BTC", "KRW-XRP"])
-    #for ob in orderbook:
+    # orderbook = get_orderbook(ticker=["KRW-BTC", "KRW-XRP"])
+    # for ob in orderbook:
     #    print(ob)

@@ -22,7 +22,7 @@ class WebSocketManager(mp.Process):
            >> if __name__ == "__main__"
 
     """
-    def __init__(self, type: str, codes: list, qsize: int=1000):
+    def __init__(self, type: str, codes: list, qsize: int = 1000):
         """웹소켓을 컨트롤하는 클래스의 생성자
 
         Args:
@@ -41,7 +41,13 @@ class WebSocketManager(mp.Process):
     async def __connect_socket(self):
         uri = "wss://api.upbit.com/websocket/v1"
         async with websockets.connect(uri, ping_interval=60) as websocket:
-            data = [{"ticket": str(uuid.uuid4())[:6]}, {"type": self.type, "codes": self.codes, "isOnlyRealtime": True}]
+            data = [{
+                "ticket": str(uuid.uuid4())[:6]
+            }, {
+                "type": self.type,
+                "codes": self.codes,
+                "isOnlyRealtime": True
+            }]
             await websocket.send(json.dumps(data))
 
             while self.alive:
@@ -57,7 +63,7 @@ class WebSocketManager(mp.Process):
         self.__aloop.run_until_complete(self.__connect_socket())
 
     def get(self):
-        if self.alive == False:
+        if self.alive is False:
             self.alive = True
             self.start()
         return self.__q.get()
@@ -68,7 +74,7 @@ class WebSocketManager(mp.Process):
 
 
 if __name__ == "__main__":
-    wm = WebSocketManager("ticker", ["KRW-BTC",])
+    wm = WebSocketManager("ticker", ["KRW-BTC", ])
     for i in range(3):
         data = wm.get()
         print(data)

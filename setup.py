@@ -10,11 +10,15 @@ install_requires = [
 with open("README.md", "r", encoding='UTF-8') as fh:
     long_description = fh.read()
 
+author_email = 'brayden.jo@outlook.com, ' \
+               'jonghun.yoo@outlook.com, ' \
+               'pyquant@outlook.com'
+
 setuptools.setup(
     name='pyupbit',
     version='0.2.29',
     author='Jonghun Yoo, Brayden Jo',
-    author_email='brayden.jo@outlook.com, jonghun.yoo@outlook.com, pyquant@outlook.com',
+    author_email=author_email,
     description='python wrapper for Upbit API',
     long_description=long_description,
     long_description_content_type="text/markdown",

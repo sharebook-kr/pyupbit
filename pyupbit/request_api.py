@@ -33,7 +33,7 @@ def _parse(remaining_req: str) -> Dict[str, Any]:
             "sec": int(matched.group(3)),
         }
         return ret
-    except:
+    except (AttributeError, ValueError):
         raise RemainingReqParsingError
 
 
