@@ -24,6 +24,12 @@ def test_get_tickers_with_limit_info():
     assert isinstance(limit_info, dict)
 
 
+def test_get_tickers_with_market_warning():
+    tickers = get_tickers(is_details=True)
+    for ticker in tickers:
+        assert ticker["market_warning"] in ["NONE", "CAUTION"]
+
+
 def test_get_ohlcv_defaults():
     resp = get_ohlcv()
     assert isinstance(resp, pd.DataFrame)

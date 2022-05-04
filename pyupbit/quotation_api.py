@@ -26,7 +26,7 @@ def get_tickers(fiat="", is_details=False, limit_info=False, verbose=False):
     detail = "true" if is_details else "false"
     markets, req_limit_info = _call_public_api(url, isDetails=detail)
 
-    if verbose:
+    if verbose or is_details:
         tickers = [x for x in markets if x['market'].startswith(fiat)]
     else:
         tickers = [x['market'] for x in markets if x['market'].startswith(fiat)]

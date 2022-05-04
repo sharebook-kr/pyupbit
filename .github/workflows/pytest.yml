@@ -1,0 +1,30 @@
+name: Run All Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: szenius/set-timezone@v1.0
+      with:
+        timezoneLinux: "Asia/Seoul"
+    - uses: actions/checkout@master
+    - name: Set up Python
+      uses: actions/setup-python@master
+      with:
+        python-version: '3.9'
+    - name: Install Dependencies
+      run: |
+        python -m pip install -U pip wheel
+        pip install -r requirements.txt
+    - name: Run All Tests
+      run: |
+        pip install pytest
+        pytest
+      env:
+        PYTHONPATH: .:$PYTHONPATH
