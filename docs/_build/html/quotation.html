@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>QUOTATION API &mdash; pyupbit 0.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="EXCHANGE API" href="exchange.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pyupbit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">QUOTATION API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">시세 종목 조회</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">마켓 코드 조회</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">시세 캔들 조회</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minute">분봉(Minute) 조회</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#day">일봉(Day) 조회</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#week">주봉(Week) 조회</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#month">월봉(Month) 조회</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">시세 체결 조회</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">시세 티커 조회</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">시세 오더북 조회</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="exchange.html">EXCHANGE API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyupbit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>QUOTATION API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/quotation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quotation-api">
+<h1>QUOTATION API<a class="headerlink" href="#quotation-api" title="Permalink to this headline">¶</a></h1>
+<p>API 신청 없이 시세 및 오더북 등을 조회할 수 있는 API입니다.</p>
+<ul class="simple">
+<li><p>Websocket은 초당 5회, 분당 100회 연결 요청할 수 있습니다.</p></li>
+<li><p>종목, 캔들, 체결, 티커, 호가 API는 분당 600회, 초당 10회 사용 가능합니다.</p></li>
+</ul>
+<div class="section" id="id1">
+<h2>시세 종목 조회<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>마켓 코드 조회<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 시세 종목 조회</span>
+<span class="kn">import</span> <span class="nn">pyupbit</span>
+
+<span class="c1"># 업비트의 모든 티커목록 조회</span>
+<span class="n">tickers</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_tickers</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tickers</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tickers</span><span class="p">))</span>
+
+<span class="c1"># 원화 시장의 티커목록 조회</span>
+<span class="n">krw_tickers</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_tickers</span><span class="p">(</span><span class="s2">&quot;KRW&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">krw_tickers</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">krw_tickers</span><span class="p">))</span>
+
+<span class="c1"># BTC 시장의 티커목록 조회</span>
+<span class="n">btc_tickers</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_tickers</span><span class="p">(</span><span class="s2">&quot;BTC&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">btc_tickers</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">btc_tickers</span><span class="p">))</span>
+
+<span class="c1"># USDT 시장의 티코목록 조회</span>
+<span class="n">usdt_tickers</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_tickers</span><span class="p">(</span><span class="s2">&quot;USDT&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">usdt_tickers</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usdt_tickers</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>시세 캔들 조회<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>분(Minute), 일(Day), 주(Week), 월(Month) 단위로 시세 캔들을 조회합니다.</p>
+<div class="section" id="minute">
+<h3>분봉(Minute) 조회<a class="headerlink" href="#minute" title="Permalink to this headline">¶</a></h3>
+<p>분봉을 얻어올 수 있습니다. 기본적으로 한 번 조회시 200개를 분봉을 얻어옵니다.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 분봉</span>
+<span class="c1"># 1, 3, 5, 10, 15, 30, 60, 240분봉에 대해서 최대 200개 조회 가능</span>
+<span class="kn">import</span> <span class="nn">pyupbit</span>
+
+<span class="c1"># 1분봉 (최대 200개 요청가능)</span>
+<span class="n">minute1</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;minute1&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">minute1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">minute1</span><span class="p">),</span> <span class="n">minute1</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="c1"># 3분봉 (최대 200개 요청가능)</span>
+<span class="n">minute3</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;minute3&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">minute3</span><span class="p">)</span>
+
+<span class="c1"># 5분봉 (최대 200개 요청가능)</span>
+<span class="n">minute5</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;minute5&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">minute5</span><span class="p">)</span>
+
+<span class="c1"># 10분봉 (최대 200개 요청가능)</span>
+<span class="n">minute10</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;minute10&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">minute10</span><span class="p">)</span>
+
+<span class="c1"># 30분봉 (최대 200개 요청가능)</span>
+<span class="n">minute30</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;minute30&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">minute30</span><span class="p">)</span>
+
+<span class="c1"># 60분봉 (최대 200개 요청가능)</span>
+<span class="n">minute60</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;minute60&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">minute60</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="day">
+<h3>일봉(Day) 조회<a class="headerlink" href="#day" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 일봉</span>
+<span class="kn">import</span> <span class="nn">pyupbit</span>
+
+<span class="c1"># 기본 요청시 200일 (최대)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;day&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># 200개 미만의 경우 count 인자에 설정 가능</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;day&quot;</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="week">
+<h3>주봉(Week) 조회<a class="headerlink" href="#week" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 주봉</span>
+<span class="kn">import</span> <span class="nn">pyupbit</span>
+
+<span class="c1"># 기본 요청시 200개</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;week&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="month">
+<h3>월봉(Month) 조회<a class="headerlink" href="#month" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyupbit</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pyupbit</span><span class="o">.</span><span class="n">get_ohlcv</span><span class="p">(</span><span class="s2">&quot;KRW-BTC&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>시세 체결 조회<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="id5">
+<h2>시세 티커 조회<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="id6">
+<h2>시세 오더북 조회<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="exchange.html" class="btn btn-neutral float-right" title="EXCHANGE API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, PyQuant.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

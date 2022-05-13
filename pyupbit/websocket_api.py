@@ -40,27 +40,29 @@ class WebSocketManager(mp.Process):
 
     async def __connect_socket(self):
         uri = "wss://api.upbit.com/websocket/v1"
-        async with websockets.connect(uri, ping_interval=60) as websocket:
-            data = [{
-                "ticket": str(uuid.uuid4())[:6]
-            }, {
-                "type": self.type,
-                "codes": self.codes,
-                "isOnlyRealtime": True
-            }]
-            await websocket.send(json.dumps(data))
+        async for websocket in websockets.connect(uri, ping_interval=60):
+            try:
+                data = [{
+                    "ticket": str(uuid.uuid4())[:6]
+                }, {
+                    "type": self.type,
+                    "codes": self.codes,
+                    "isOnlyRealtime": True
+                }]
+                await websocket.send(json.dumps(data))
 
-            while self.alive:
-                try:
+                while self.alive:
                     recv_data = await websocket.recv()
                     recv_data = recv_data.decode('utf8')
                     self.__q.put(json.loads(recv_data))
-                except websockets.exceptions.ConnectionClosedError:
-                    self.__q.put('ConnectionClosedError')
+            except websockets.ConnectionClosed:
+                self.__q.put('ConnectionClosedError')
+                continue
 
     def run(self):
-        self.__aloop = asyncio.get_event_loop()
-        self.__aloop.run_until_complete(self.__connect_socket())
+        #self.__aloop = asyncio.get_event_loop()
+        #self.__aloop.run_until_complete(self.__connect_socket())
+        asyncio.run(self.__connect_socket())
 
     def get(self):
         if self.alive is False:
@@ -75,7 +77,7 @@ class WebSocketManager(mp.Process):
 
 if __name__ == "__main__":
     wm = WebSocketManager("ticker", ["KRW-BTC", ])
-    for i in range(3):
+    while True:
         data = wm.get()
         print(data)
     wm.terminate()
