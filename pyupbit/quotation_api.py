@@ -91,7 +91,7 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None,
         elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
             to = to.to_pydatetime()
 
-        to = to.astimezone(datetime.timezone.utc)
+        #to = to.astimezone(datetime.timezone.utc)
 
         dfs = []
         count = max(count, 1)
@@ -107,7 +107,8 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None,
             for x in contents:
                 dt = datetime.datetime.strptime(
                     x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S")
-                dt_list.append(dt.astimezone())
+                #dt_list.append(dt.astimezone())
+                dt_list.append(dt)
 
             df = pd.DataFrame(contents,
                               columns=[
@@ -153,7 +154,7 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None,
             fromDatetime = pd.to_datetime(fromDatetime).to_pydatetime()
         elif isinstance(fromDatetime, pd._libs.tslibs.timestamps.Timestamp):
             fromDatetime = fromDatetime.to_pydatetime()
-        fromDatetime = fromDatetime.astimezone(datetime.timezone.utc)
+        #fromDatetime = fromDatetime.astimezone(datetime.timezone.utc)
 
         if to is None:
             to = datetime.datetime.now()
@@ -161,7 +162,7 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None,
             to = pd.to_datetime(to).to_pydatetime()
         elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
             to = to.to_pydatetime()
-        to = to.astimezone(datetime.timezone.utc)
+        #to = to.astimezone(datetime.timezone.utc)
 
         dfs = []
         while to > fromDatetime:
@@ -176,7 +177,8 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None,
             for x in contents:
                 dt = datetime.datetime.strptime(
                     x['candle_date_time_kst'], "%Y-%m-%dT%H:%M:%S")
-                dt_list.append(dt.astimezone())
+                #dt_list.append(dt.astimezone())
+                dt_list.append(dt)
             # set timezone for time comparison
             # timezone will be removed before DataFrame returned
 
@@ -196,7 +198,7 @@ def get_ohlcv_from(ticker="KRW-BTC", interval="day", fromDatetime=None,
 
             to = datetime.datetime.strptime(
                 contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
-            to = to.replace(tzinfo=datetime.timezone.utc)
+            #to = to.replace(tzinfo=datetime.timezone.utc)
             # to compare fromTs and to, set tzinfo
 
             if to > fromDatetime:
@@ -325,6 +327,7 @@ if __name__ == "__main__":
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
     # print(get_ohlcv("KRW-BTC", interval="day", to="2020-01-01 00:00:00"))
     df = get_ohlcv('KRW-XRP', interval='minute5', count=1000)
+    print(type(df.index))
     print(df)
 
     # to = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
