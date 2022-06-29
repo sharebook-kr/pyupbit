@@ -355,6 +355,7 @@ print(upbit.cancel_order('50e184b3-9b4f-4bb0-9c03-30318e3ff10a'))
 ```
 
 #### 웹소켓
+
 WebSocket을 이용해서 `현재가`, `호가`, `체결`에 대한 정보를 수신합니다.
 - 첫 번째 파라미터에는 수신정보를 입력하며 `ticker`, `orderbook`, `transaction`을 사용할 수 있습니다.
 - 두 번째 파라미터는 구독할 필터를 설정하며 암호화폐의 티커를 입력합니다. 현재 버전에서는 원화 시장만을 지원합니다.
@@ -374,3 +375,25 @@ if __name__ == "__main__":
 PyQt5와 함께 웹소켓을 사용하는 예제는 다음 코드를 참고하세요.
 - 버튼을 클릭하면 웹소켓에서 가격정보를 가져와서 화면에 출력합니다.
 - https://gist.github.com/mr-yoo/a3d1f8a4152f94cf61e4bc566659cd20
+
+
+WebSocketClient 클래스는 외부에서 프로세스 생성 및 큐를 전달하는 구조에서 사용합니다. WebSocketManager와 달리 사용자가 프로세스를 생성하고 사용할 큐를 입력해줘야 합니다. 
+
+```
+import multiprocessing as mp
+import pyupbit
+
+
+if __name__ == "__main__":
+    queue = mp.Queue()
+    proc = mp.Process(
+        target=pyupbit.WebSocketClient,
+        args=('ticker', ["KRW-BTC"], queue),
+        daemon=True
+    )
+    proc.start()
+
+    while True:
+        data = queue.get()
+        print(data)
+```
