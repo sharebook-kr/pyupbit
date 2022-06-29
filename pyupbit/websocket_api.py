@@ -24,7 +24,7 @@ class WebSocketClient:
                 }]
                 await websocket.send(json.dumps(data))
 
-                while self.alive:
+                while True:
                     recv_data = await websocket.recv()
                     recv_data = recv_data.decode('utf8')
                     self.queue.put(json.loads(recv_data))

@@ -16,7 +16,7 @@ author_email = 'brayden.jo@outlook.com, ' \
 
 setuptools.setup(
     name='pyupbit',
-    version='0.2.32',
+    version='0.2.33',
     author='Jonghun Yoo, Brayden Jo',
     author_email=author_email,
     description='python wrapper for Upbit API',

@@ -5,4 +5,4 @@ from .errors import *
 from .websocket_api import WebSocketManager
 from .websocket_api import WebSocketClient
 
-__version__ = "0.2.32"
+__version__ = "0.2.33"
