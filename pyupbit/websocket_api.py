@@ -4,6 +4,37 @@ import json
 import uuid
 import multiprocessing as mp
 
+class WebSocketClient:
+    def __init__(self, type: str, codes: list, queue: mp.Queue):
+        self.type = type
+        self.codes = codes
+        self.queue = queue
+        self.run()
+
+    async def connect_socket(self):
+        uri = "wss://api.upbit.com/websocket/v1"
+        async for websocket in websockets.connect(uri, ping_interval=60):
+            try:
+                data = [{
+                    "ticket": str(uuid.uuid4())[:6]
+                }, {
+                    "type": self.type,
+                    "codes": self.codes,
+                    "isOnlyRealtime": True
+                }]
+                await websocket.send(json.dumps(data))
+
+                while self.alive:
+                    recv_data = await websocket.recv()
+                    recv_data = recv_data.decode('utf8')
+                    self.queue.put(json.loads(recv_data))
+            except websockets.ConnectionClosed:
+                self.queue.put('ConnectionClosedError')
+                continue
+
+    def run(self):
+        asyncio.run(self.connect_socket())
+
 
 class WebSocketManager(mp.Process):
     """웹소켓을 관리하는 클래스
