@@ -515,11 +515,17 @@ class Upbit:
         """
         try:
             url = "https://api.upbit.com/v1/withdraws/coin"
-            data = {"currency": currency,
-                    "amount": amount,
-                    "address": address,
-                    "secondary_address": secondary_address,
-                    "transaction_type": transaction_type}
+            if secondary_address = 'None':
+                data = {"currency": currency,
+                        "amount": amount,
+                        "address": address,
+                        "transaction_type": transaction_type}
+            else:
+                data = {"currency": currency,
+                        "amount": amount,
+                        "address": address,
+                        "secondary_address": secondary_address,
+                        "transaction_type": transaction_type}
             headers = self._request_headers(data)
             result = _send_post_request(url, headers=headers, data=data)
             if contain_req:
