@@ -515,7 +515,7 @@ class Upbit:
         """
         try:
             url = "https://api.upbit.com/v1/withdraws/coin"
-            if secondary_address = 'None':
+            if secondary_address == 'None':
                 data = {"currency": currency,
                         "amount": amount,
                         "address": address,
