@@ -289,7 +289,7 @@ class Upbit:
                 headers = self._request_headers(data)
                 result = _send_get_request(url, headers=headers, data=data)
             elif ticker_or_uuid == 'None':
-                url = "https://api.upbit.com/v1/order"
+                url = "https://api.upbit.com/v1/orders"
                 data = {'state': state,
                         'page': page,
                         'limit': limit,
