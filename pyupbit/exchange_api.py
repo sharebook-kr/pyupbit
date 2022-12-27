@@ -579,7 +579,7 @@ class Upbit:
         :return:
         """
         try:
-            url = "https://api.upbit.com//v1/deposits"
+            url = "https://api.upbit.com/v1/deposits"
             data = {"currency": currency}
             headers = self._request_headers(data)
 
