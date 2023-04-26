@@ -85,7 +85,8 @@ def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None,
         url = get_url_ohlcv(interval=interval)
 
         if to is None:
-            to = datetime.datetime.now()
+            to = datetime.datetime.now(datetime.timezone.utc)
+            to = to.replace(tzinfo=None)
         elif isinstance(to, str):
             to = pd.to_datetime(to).to_pydatetime()
         elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
