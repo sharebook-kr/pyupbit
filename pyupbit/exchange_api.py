@@ -268,7 +268,7 @@ class Upbit:
     
 
     #    개별 주문 조회 
-    def get_order(self, ticker_or_uuid, state='wait', page=1, limit=100, contain_req=False):
+    def get_order(self, ticker_or_uuid='None', state='wait', page=1, limit=100, contain_req=False):
         """
         주문 리스트 조회
         :param ticker: market
@@ -288,8 +288,16 @@ class Upbit:
                 data = {'uuid': ticker_or_uuid}
                 headers = self._request_headers(data)
                 result = _send_get_request(url, headers=headers, data=data)
-            else :
-
+            elif ticker_or_uuid == 'None':
+                url = "https://api.upbit.com/v1/orders"
+                data = {'state': state,
+                        'page': page,
+                        'limit': limit,
+                        'order_by': 'desc'
+                        }
+                headers = self._request_headers(data)
+                result = _send_get_request(url, headers=headers, data=data)
+            else:
                 url = "https://api.upbit.com/v1/orders"
                 data = {'market': ticker_or_uuid,
                         'state': state,
@@ -515,11 +523,17 @@ class Upbit:
         """
         try:
             url = "https://api.upbit.com/v1/withdraws/coin"
-            data = {"currency": currency,
-                    "amount": amount,
-                    "address": address,
-                    "secondary_address": secondary_address,
-                    "transaction_type": transaction_type}
+            if secondary_address == 'None':
+                data = {"currency": currency,
+                        "amount": amount,
+                        "address": address,
+                        "transaction_type": transaction_type}
+            else:
+                data = {"currency": currency,
+                        "amount": amount,
+                        "address": address,
+                        "secondary_address": secondary_address,
+                        "transaction_type": transaction_type}
             headers = self._request_headers(data)
             result = _send_post_request(url, headers=headers, data=data)
             if contain_req:
@@ -565,7 +579,7 @@ class Upbit:
         :return:
         """
         try:
-            url = "https://api.upbit.com//v1/deposits"
+            url = "https://api.upbit.com/v1/deposits"
             data = {"currency": currency}
             headers = self._request_headers(data)
 
