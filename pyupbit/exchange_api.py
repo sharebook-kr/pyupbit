@@ -16,7 +16,10 @@ from pyupbit.request_api import _send_get_request, _send_post_request, _send_del
 
 
 def get_tick_size(price, method="floor"):
-    """원화마켓 주문 가격 단위 
+    """원화마켓 주문 가격 단위
+    TODO: rename this to adjust_price_per_tick_table?
+    tick size is by definition the minimum allowed price increment.
+    FIXME: tick size is updated. https://docs.upbit.com/docs/market-info-trade-price-detail
 
     Args:
         price (float]): 주문 가격 
@@ -25,7 +28,6 @@ def get_tick_size(price, method="floor"):
     Returns:
         float: 업비트 원화 마켓 주문 가격 단위로 조정된 가격 
     """
-
     if method == "floor":
         func = math.floor
     elif method == "round":
@@ -44,17 +46,23 @@ def get_tick_size(price, method="floor"):
     elif price >= 10000:
         tick_size = func(price / 10) * 10
     elif price >= 1000:
-        tick_size = func(price / 5) * 5
-    elif price >= 100:
         tick_size = func(price / 1) * 1
-    elif price >= 10:
+    elif price >= 100:
         tick_size = func(price / 0.1) / 10
-    elif price >= 1:
+    elif price >= 10:
         tick_size = func(price / 0.01) / 100
-    elif price >= 0.1:
+    elif price >= 1:
         tick_size = func(price / 0.001) / 1000
-    else:
+    elif price >= 0.1:
         tick_size = func(price / 0.0001) / 10000
+    elif price >= 0.01:
+        tick_size = func(price / 0.00001) / 100000
+    elif price >= 0.001:
+        tick_size = func(price / 0.000001) / 1000000
+    elif price >= 0.0001:
+        tick_size = func(price / 0.0000001) / 10000000
+    else:
+        tick_size = func(price / 0.00000001) / 100000000
 
     return tick_size
 
