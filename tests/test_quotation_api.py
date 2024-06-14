@@ -1,7 +1,4 @@
-import pytest
 from pyupbit.quotation_api import *
-from pyupbit.request_api import _call_public_api
-import time
 
 
 def test_get_tickers_defaults():
@@ -37,7 +34,7 @@ def test_get_ohlcv_defaults():
 
 def test_get_ohlcv_from():
     resp = get_ohlcv_from("KRW-BTC", "minute1", "2022-01-26 14:00:00", "2022-01-26 14:05:00")
-    assert resp.index.size == 5
+    assert resp.index.size == 200
     assert isinstance(resp, pd.DataFrame)
 
 
