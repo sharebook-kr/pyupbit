@@ -234,6 +234,10 @@ def get_daily_ohlcv_from_base(ticker="KRW-BTC", base=0):
         return None
 
 
+def _get_current_price(ticker="KRW-BTC", limit_info=False, verbose=False):    
+    url = "https://api.upbit.com/v1/ticker"
+    return _call_public_api(url, markets=ticker)    
+    
 def get_current_price(ticker="KRW-BTC", limit_info=False, verbose=False):
     """현재가 정보 조회
 
@@ -245,27 +249,26 @@ def get_current_price(ticker="KRW-BTC", limit_info=False, verbose=False):
     Returns:
         [type]: [description]
     """
-    url = "https://api.upbit.com/v1/ticker"
-    data, req_limit_info = _call_public_api(url, markets=ticker)
-
-    if isinstance(ticker, str) or \
-            (isinstance(ticker, list) and len(ticker) == 1):
-        # 단일 티커
+    if isinstance(ticker, str) or (isinstance(ticker, list) and len(ticker) == 1):
+        price, req_limit_info = _get_current_price(ticker, limit_info, verbose)        
         if verbose is False:
-            price = data[0]['trade_price']
-        else:
-            price = data[0]
+            price = price[0]['trade_price']
+        
     else:
-        # 여러 티커로 조회한 경우
-        if verbose is False:
-            price = {x['market']: x['trade_price'] for x in data}
-        else:
-            price = data
+        slice_size = 200
+        price = []
+        for idx in range(0, len(ticker), slice_size):
+            ticker_sliced = ticker[idx: idx+slice_size]
+            price_sliced, req_limit_info = _get_current_price(ticker_sliced, limit_info, verbose)        
+            price += price_sliced
 
+        if verbose is False:
+            price = {x['market']: x['trade_price'] for x in price}
+    
     if limit_info:
         return price, req_limit_info
     else:
-        return price
+        return price  
 
 
 def get_orderbook(ticker="KRW-BTC", limit_info=False):
@@ -363,9 +366,10 @@ if __name__ == "__main__":
     # print(get_daily_ohlcv_from_base("KRW-BTC", base=9))
     # print(get_ohlcv("KRW-BTC", interval="day", count=5))
 
-    # krw_tickers = get_tickers(fiat="KRW")
-    # print(len(krw_tickers))
-
+    tickers = get_tickers()
+    print(len(tickers))
+    prices1 = get_current_price(tickers)
+    print(prices1)
     # krw_tickers1 = krw_tickers[:100]
     # krw_tickers2 = krw_tickers[100:]
 
