@@ -279,11 +279,12 @@ class Upbit:
     def get_order(self, ticker_or_uuid, state='wait', page=1, limit=100, contain_req=False):
         """
         주문 리스트 조회
-        :param ticker: market
+        :param ticker_or_uuid: 마켓 아이디 or 주문 UUID
         :param state: 주문 상태(wait, watch, done, cancel)
-        :param kind: 주문 유형(normal, watch)
+        :param page: 페이지 수
+        :param limit: 요청 개수
         :param contain_req: Remaining-Req 포함여부
-        :return:
+        :return: 주문 리스트
         """
         # TODO : states, identifiers 관련 기능 추가 필요
         try:
