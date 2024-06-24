@@ -300,7 +300,7 @@ class Upbit:
 
                 url = "https://api.upbit.com/v1/orders"
                 data = {'market': ticker_or_uuid,
-                        'state': state,
+                        'states[]': state, #[done, cancel] 두가지 동시에 요청가능한 기능업데이트
                         'page': page,
                         'limit': limit,
                         'order_by': 'desc'
